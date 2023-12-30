@@ -14,7 +14,7 @@ class Event:
     fixedHours: Optional[List[int]] = None
 
 
-def create_events_from_assignment(assignments: List[Assignment]) -> List[Event]:
+def create_events_from_assignments(assignments: List[Assignment]) -> List[Event]:
     events: List[Event] = []
     for assignment in assignments:
         courses = assignment.courses
@@ -131,7 +131,7 @@ def main():
 
     json_dict = json.loads(json_string)
     assignments = [Assignment.from_json_dict(object) for object in json_dict]
-    events = create_events_from_assignment(assignments)
+    events = create_events_from_assignments(assignments)
     for event in events:
         print(event)
 
