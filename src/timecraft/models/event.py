@@ -1,10 +1,11 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import List, Optional
-import json
 from assignment import Course, Faculty, Assignment
 
+import json
 
-@dataclass(slots=True)
+
+@dataclass(frozen=True, slots=True)
 class Event:
     courses: List[Course]
     faculties: List[Faculty]

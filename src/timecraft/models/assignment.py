@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from typing import List, Optional
 from enum import Enum
+
 import json
 
 
@@ -9,20 +10,20 @@ class CourseType(Enum):
     ELECTIVE = "Elective"
 
 
-@dataclass(slots=True)
+@dataclass(frozen=True, slots=True)
 class Course:
     code: str
     name: str
 
 
-@dataclass(slots=True)
+@dataclass(frozen=True, slots=True)
 class Faculty:
     code: str
     name: str
     occupiedHours: List[int]
 
 
-@dataclass
+@dataclass(frozen=True, slots=True)
 class Assignment:
     def __init__(
         self,
