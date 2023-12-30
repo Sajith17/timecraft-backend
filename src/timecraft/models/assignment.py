@@ -7,22 +7,22 @@ import json
 class CourseType(Enum):
     CORE = "Core"
     ELECTIVE = "Elective"
-    SHARED = "Shared"
 
 
-@dataclass
+@dataclass(slots=True)
 class Course:
     code: str
     name: str
 
 
-@dataclass
+@dataclass(slots=True)
 class Faculty:
     code: str
     name: str
     occupiedHours: List[int]
 
 
+@dataclass
 class Assignment:
     def __init__(
         self,
@@ -32,9 +32,11 @@ class Assignment:
         hours: int,
         fixedHours: List[int],
         studentGroup: str,
+        isShared: Optional[bool] = False,
         weightedHours: Optional[List[int]] = None,
     ):
         self.courseType = courseType
+        self.isShared = isShared
         self.courses = courses
         self.faculties = faculties
         self.hours = hours
@@ -43,8 +45,7 @@ class Assignment:
         self.studentGroup = studentGroup
 
     @classmethod
-    def from_json(cls, json_string):
-        json_dict = json.loads(json_string)
+    def from_json(cls, json_dict):
         json_dict["courseType"] = CourseType(json_dict["courseType"])
         return cls(**json_dict)
 
@@ -79,7 +80,8 @@ def main():
         "studentGroup": "A"
     }"""
 
-    assignment = Assignment.from_json(json_string)
+    json_dict = json.loads(json_string)
+    assignment = Assignment.from_json(json_dict)
     print(assignment.courses, assignment.faculties, assignment.courseType)
 
 
