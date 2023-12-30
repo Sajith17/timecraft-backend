@@ -5,7 +5,7 @@ from assignment import Course, Faculty, Assignment
 import json
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(slots=True, frozen=True)
 class Event:
     courses: List[Course]
     faculties: List[Faculty]
@@ -130,7 +130,7 @@ def main():
 ]"""
 
     json_dict = json.loads(json_string)
-    assignments = [Assignment.from_json(object) for object in json_dict]
+    assignments = [Assignment.from_json_dict(object) for object in json_dict]
     events = create_events_from_assignment(assignments)
     for event in events:
         print(event)

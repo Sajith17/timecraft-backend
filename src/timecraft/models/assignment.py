@@ -23,7 +23,7 @@ class Faculty:
     occupiedHours: List[int]
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass
 class Assignment:
     def __init__(
         self,
@@ -46,8 +46,7 @@ class Assignment:
         self.studentGroup = studentGroup
 
     @classmethod
-    def from_json(cls, json_dict):
-        json_dict["courseType"] = CourseType(json_dict["courseType"])
+    def from_json_dict(cls, json_dict):
         return cls(**json_dict)
 
 
@@ -82,8 +81,8 @@ def main():
     }"""
 
     json_dict = json.loads(json_string)
-    assignment = Assignment.from_json(json_dict)
-    print(assignment.courses, assignment.faculties, assignment.courseType)
+    assignment = Assignment.from_json_dict(json_dict)
+    print(assignment)
 
 
 if __name__ == "__main__":
