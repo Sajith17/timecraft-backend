@@ -1,6 +1,8 @@
 from dataclasses import dataclass
+from timecraft.utils import convert_keys
 from typing import List, Optional
 from enum import Enum
+from icecream import ic
 
 import json
 
@@ -20,34 +22,27 @@ class Course:
 class Faculty:
     code: str
     name: str
-    occupiedHours: List[int]
+    occupied_hours: List[int]
 
 
-@dataclass
+@dataclass(frozen=True, slots=True)
 class Assignment:
-    def __init__(
-        self,
-        courseType: CourseType,
-        courses: List[Course],
-        faculties: List[Faculty],
-        hours: int,
-        fixedHours: List[int],
-        studentGroup: str,
-        isShared: Optional[bool] = False,
-        weightedHours: Optional[List[int]] = None,
-    ):
-        self.courseType = courseType
-        self.isShared = isShared
-        self.courses = courses
-        self.faculties = faculties
-        self.hours = hours
-        self.fixedHours = fixedHours
-        self.weightedHours = weightedHours
-        self.studentGroup = studentGroup
+    course_type: CourseType
+    courses: List[Course]
+    faculties: List[Faculty]
+    hours: int
+    fixed_hours: List[int]
+    student_group: str
+    is_shared: Optional[bool] = False
+    weighted_hours: Optional[List[int]] = None
 
     @classmethod
     def from_json_dict(cls, json_dict):
         return cls(**json_dict)
+
+    @classmethod
+    def from_json_string(cls, json_string):
+        return cls.from_json_dict(json.loads(json_string))
 
 
 def main():
@@ -81,8 +76,8 @@ def main():
     }"""
 
     json_dict = json.loads(json_string)
-    assignment = Assignment.from_json_dict(json_dict)
-    print(assignment)
+    json_dict = convert_keys(json_dict, "snakecase")
+    ic(json_dict)
 
 
 if __name__ == "__main__":

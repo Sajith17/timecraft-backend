@@ -1,54 +1,26 @@
 from dataclasses import dataclass
-from typing import List, Optional
-from timecraft.models import Course, Faculty, Assignment
+from typing import List
+from timecraft.models import Event, Assignment, create_events_from_assignments
 from timecraft.utils import convert_keys
-
-import json
 from icecream import ic
 
-
-@dataclass(slots=True, frozen=True)
-class Event:
-    courses: List[Course]
-    faculties: List[Faculty]
-    hours: int
-    student_group: str
-    fixed_hours: Optional[List[int]] = None
+import json
 
 
-def create_events_from_assignments(assignments: List[Assignment]) -> List[Event]:
-    events: List[Event] = []
-    for assignment in assignments:
-        courses = assignment.courses
-        faculties = assignment.faculties
-        hours = assignment.hours
-        fixed_hours = assignment.fixed_hours
-        weighted_hours = assignment.weighted_hours
-        student_group = assignment.student_group
-        if assignment.is_shared:
-            for i in range(len(faculties)):
-                events.append(
-                    Event(
-                        courses=courses,
-                        faculties=[faculties[i]],
-                        hours=weighted_hours[i],
-                        student_group=student_group,
-                    )
-                )
-        else:
-            events.append(
-                Event(
-                    courses=courses,
-                    faculties=faculties,
-                    hours=hours,
-                    fixed_hours=fixed_hours,
-                    student_group=student_group,
-                )
-            )
-    return events
+class DataHelper:
+    def __init__(self, no_hours: int, no_days: int, events: List[Event]) -> None:
+        self.no_hours = no_hours
+        self.no_days = no_days
+        self.events = events
+
+    def get_event_map(self) -> dict[int, Event]:
+        event_map = {}
+        for i, event in enumerate(self.events):
+            event_map[i + 1] = event
+        return event_map
 
 
-def main():
+if __name__ == "__main__":
     json_string = """[
     {
         "courseType": "Core",
@@ -135,9 +107,5 @@ def main():
     json_dict = convert_keys(json_dict, "snakecase")
     assignments = [Assignment.from_json_dict(object) for object in json_dict]
     events = create_events_from_assignments(assignments)
-    for event in events:
-        ic(event)
-
-
-if __name__ == "__main__":
-    main()
+    data_helper = DataHelper(3, 3, events)
+    ic(data_helper.get_event_map())
