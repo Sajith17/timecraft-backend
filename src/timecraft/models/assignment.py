@@ -31,9 +31,9 @@ class Assignment:
     courses: List[Course]
     faculties: List[Faculty]
     hours: int
-    fixed_hours: List[int]
     student_group: str
     is_shared: Optional[bool] = False
+    fixed_hours: Optional[List[int]] = None
     weighted_hours: Optional[List[int]] = None
 
     @classmethod

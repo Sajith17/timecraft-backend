@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from typing import List
-from timecraft.models import Event, Assignment, create_events_from_assignments
+from timecraft.models import Event, Assignment
 from timecraft.utils import convert_keys
 from icecream import ic
 
@@ -8,19 +8,70 @@ import json
 
 
 class DataHelper:
-    def __init__(self, no_hours: int, no_days: int, events: List[Event]) -> None:
+    """
+    Provide convenient access to the required helper variables during timetable generation.
+    """
+
+    def __init__(
+        self, no_hours: int, no_days: int, no_groups: int, events: List[Event]
+    ) -> None:
         self.no_hours = no_hours
         self.no_days = no_days
+        self.no_groups = no_groups
+        self.no_slots = no_hours * no_days
         self.events = events
+        self._event_map = None
+        self._groups = None
+        self._pickable_event_ids_by_group = None
+        self._open_slots_by_group = None
 
-    def get_event_map(self) -> dict[int, Event]:
-        event_map = {}
-        for i, event in enumerate(self.events):
-            event_map[i + 1] = event
-        return event_map
+    @property
+    def event_map(self) -> dict[int, Event]:
+        if self._event_map is None:
+            self._event_map = {i + 1: event for i, event in enumerate(self.events)}
+        return self._event_map
+
+    @property
+    def groups(self) -> list[str]:
+        if self._groups is None:
+            self._groups = sorted(
+                list(set(event.student_group for event in self.events))
+            )
+        return self._groups
+
+    @property
+    def group_map(self) -> dict[str, int]:
+        return {i: group for i, group in enumerate(self.groups)}
+
+    @property
+    def pickable_event_ids_by_group(self) -> dict[str, list[int]]:
+        if self._pickable_event_ids_by_group is None:
+            self._pickable_event_ids_by_group = {i: [] for i in self.groups}
+            for id, event in self.event_map.items():
+                group = event.student_group
+                if event.fixed_hours:
+                    if len(event.fixed_hours) < event.hours:
+                        self._pickable_event_ids_by_group[group].append(id)
+                else:
+                    self._pickable_event_ids_by_group[group].append(id)
+        return self._pickable_event_ids_by_group
+
+    @property
+    def open_slots_by_group(self) -> dict[str, list[int]]:
+        if self._open_slots_by_group is None:
+            fixed_slots_by_group = {i: [] for i in self.groups}
+            for event in self.events:
+                group = event.student_group
+                if event.fixed_hours:
+                    fixed_slots_by_group[group] += event.fixed_hours
+            self._open_slots_by_group = {
+                group: list(set(range(self.no_slots)) - set(fixed_slots))
+                for group, fixed_slots in fixed_slots_by_group.items()
+            }
+        return self._open_slots_by_group
 
 
-if __name__ == "__main__":
+def main():
     json_string = """[
     {
         "courseType": "Core",
@@ -68,7 +119,6 @@ if __name__ == "__main__":
             }
         ],
         "hours": 6,
-        "fixedHours": [7, 8, 9],
         "weightedHours": [2, 4],
         "studentGroup": "B"
     },
@@ -97,8 +147,8 @@ if __name__ == "__main__":
                 "occupiedHours": [16, 17, 18]
             }
         ],
-        "hours": 7,
-        "fixedHours": [13, 14, 15],
+        "hours": 3,
+        "fixedHours": [2, 3, 4],
         "studentGroup": "C"
     }
 ]"""
@@ -106,6 +156,10 @@ if __name__ == "__main__":
     json_dict = json.loads(json_string)
     json_dict = convert_keys(json_dict, "snakecase")
     assignments = [Assignment.from_json_dict(object) for object in json_dict]
-    events = create_events_from_assignments(assignments)
-    data_helper = DataHelper(3, 3, events)
-    ic(data_helper.get_event_map())
+    events = Event.create_events_from_assignments(assignments)
+    data_helper = DataHelper(2, 3, 3, events)
+    ic(data_helper.group_map)
+
+
+if __name__ == "__main__":
+    main()

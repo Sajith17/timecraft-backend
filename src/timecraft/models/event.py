@@ -1,13 +1,15 @@
+from __future__ import annotations
 from dataclasses import dataclass
 from typing import List, Optional
 from timecraft.models import Course, Faculty, Assignment
 from timecraft.utils import convert_keys
 
+
 import json
 from icecream import ic
 
 
-@dataclass(slots=True, frozen=True)
+@dataclass(frozen=True, slots=True)
 class Event:
     courses: List[Course]
     faculties: List[Faculty]
@@ -15,37 +17,39 @@ class Event:
     student_group: str
     fixed_hours: Optional[List[int]] = None
 
-
-def create_events_from_assignments(assignments: List[Assignment]) -> List[Event]:
-    events: List[Event] = []
-    for assignment in assignments:
-        courses = assignment.courses
-        faculties = assignment.faculties
-        hours = assignment.hours
-        fixed_hours = assignment.fixed_hours
-        weighted_hours = assignment.weighted_hours
-        student_group = assignment.student_group
-        if assignment.is_shared:
-            for i in range(len(faculties)):
+    @classmethod
+    def create_events_from_assignments(
+        cls, assignments: List[Assignment]
+    ) -> List[Event]:
+        events: List[Event] = []
+        for assignment in assignments:
+            courses = assignment.courses
+            faculties = assignment.faculties
+            hours = assignment.hours
+            fixed_hours = assignment.fixed_hours
+            weighted_hours = assignment.weighted_hours
+            student_group = assignment.student_group
+            if assignment.is_shared:
+                for i in range(len(faculties)):
+                    events.append(
+                        cls(
+                            courses=courses,
+                            faculties=[faculties[i]],
+                            hours=weighted_hours[i],
+                            student_group=student_group,
+                        )
+                    )
+            else:
                 events.append(
-                    Event(
+                    cls(
                         courses=courses,
-                        faculties=[faculties[i]],
-                        hours=weighted_hours[i],
+                        faculties=faculties,
+                        hours=hours,
+                        fixed_hours=fixed_hours,
                         student_group=student_group,
                     )
                 )
-        else:
-            events.append(
-                Event(
-                    courses=courses,
-                    faculties=faculties,
-                    hours=hours,
-                    fixed_hours=fixed_hours,
-                    student_group=student_group,
-                )
-            )
-    return events
+        return events
 
 
 def main():
@@ -96,7 +100,6 @@ def main():
             }
         ],
         "hours": 6,
-        "fixedHours": [7, 8, 9],
         "weightedHours": [2, 4],
         "studentGroup": "B"
     },
@@ -134,9 +137,9 @@ def main():
     json_dict = json.loads(json_string)
     json_dict = convert_keys(json_dict, "snakecase")
     assignments = [Assignment.from_json_dict(object) for object in json_dict]
-    events = create_events_from_assignments(assignments)
+    events = Event.create_events_from_assignments(assignments)
     for event in events:
-        ic(event)
+        ic(type(event))
 
 
 if __name__ == "__main__":
