@@ -40,8 +40,12 @@ class DataHelper:
         return self._groups
 
     @property
-    def group_map(self) -> dict[str, int]:
+    def index_to_group(self) -> dict[int, str]:
         return {i: group for i, group in enumerate(self.groups)}
+
+    @property
+    def group_to_index(self) -> dict[str, int]:
+        return {group: i for i, group in enumerate(self.groups)}
 
     @property
     def pickable_event_ids_by_group(self) -> dict[str, list[int]]:
@@ -49,21 +53,21 @@ class DataHelper:
             self._pickable_event_ids_by_group = {i: [] for i in self.groups}
             for id, event in self.event_map.items():
                 group = event.student_group
-                if event.fixed_hours:
-                    if len(event.fixed_hours) < event.hours:
+                if event.fixed_slots:
+                    if len(event.fixed_slots) < event.hours:
                         self._pickable_event_ids_by_group[group].append(id)
                 else:
                     self._pickable_event_ids_by_group[group].append(id)
         return self._pickable_event_ids_by_group
 
     @property
-    def open_slots_by_group(self) -> dict[str, list[int]]:
+    def open_slots_by_group(self) -> list[list[int]]:
         if self._open_slots_by_group is None:
             fixed_slots_by_group = {i: [] for i in self.groups}
             for event in self.events:
                 group = event.student_group
-                if event.fixed_hours:
-                    fixed_slots_by_group[group] += event.fixed_hours
+                if event.fixed_slots:
+                    fixed_slots_by_group[group] += event.fixed_slots
             self._open_slots_by_group = {
                 group: list(set(range(self.no_slots)) - set(fixed_slots))
                 for group, fixed_slots in fixed_slots_by_group.items()
@@ -90,11 +94,11 @@ def main():
             {
                 "code": "CS",
                 "name": "Computer Science",
-                "occupiedHours": [1, 2, 3]
+                "occupiedSlots": [1, 2, 3]
             }
         ],
         "hours": 8,
-        "fixedHours": [1, 2, 3],
+        "fixedSlots": [1, 2, 3],
         "studentGroup": "A"
     },
     {
@@ -110,12 +114,12 @@ def main():
             {
                 "code": "MATH",
                 "name": "Mathematics",
-                "occupiedHours": [7, 8, 9]
+                "occupiedSlots": [7, 8, 9]
             },
             {
                 "code": "PHY",
                 "name": "Physics",
-                "occupiedHours": [10, 11, 12]
+                "occupiedSlots": [10, 11, 12]
             }
         ],
         "hours": 6,
@@ -139,16 +143,16 @@ def main():
             {
                 "code": "ENG",
                 "name": "English",
-                "occupiedHours": [13, 14, 15]
+                "occupiedSlots": [13, 14, 15]
             },
             {
                 "code": "HIS",
                 "name": "History",
-                "occupiedHours": [16, 17, 18]
+                "occupiedSlots": [16, 17, 18]
             }
         ],
         "hours": 3,
-        "fixedHours": [2, 3, 4],
+        "fixedSlots": [2, 3, 4],
         "studentGroup": "C"
     }
 ]"""
@@ -158,7 +162,7 @@ def main():
     assignments = [Assignment.from_json_dict(object) for object in json_dict]
     events = Event.create_events_from_assignments(assignments)
     data_helper = DataHelper(2, 3, 3, events)
-    ic(data_helper.group_map)
+    ic(data_helper.group_to_index)
 
 
 if __name__ == "__main__":

@@ -22,7 +22,7 @@ class Course:
 class Faculty:
     code: str
     name: str
-    occupied_hours: List[int]
+    occupied_slots: List[int]
 
 
 @dataclass(frozen=True, slots=True)
@@ -33,7 +33,7 @@ class Assignment:
     hours: int
     student_group: str
     is_shared: Optional[bool] = False
-    fixed_hours: Optional[List[int]] = None
+    fixed_slots: Optional[List[int]] = None
     weighted_hours: Optional[List[int]] = None
 
     @classmethod
@@ -62,16 +62,16 @@ def main():
             {
                 "code": "CS",
                 "name": "Computer Science",
-                "occupiedHours": [1, 2, 3]
+                "occupiedSlots": [1, 2, 3]
             },
             {
                 "code": "IT",
                 "name": "Information Technology",
-                "occupiedHours": [4, 5, 6]
+                "occupiedSlots": [4, 5, 6]
             }
         ],
         "hours": 8,
-        "fixedHours": [1, 2, 3],
+        "fixedSlots": [1, 2, 3],
         "studentGroup": "A"
     }"""
 

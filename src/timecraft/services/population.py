@@ -1,55 +1,53 @@
-from __future__ import annotations
-from dataclasses import dataclass
-from typing import List, Optional
-from timecraft.models import Course, Faculty, Assignment
+import numpy as np
+import json
+
+from icecream import ic
+from numpy.random import rand, randint, choice
+from timecraft.services import DataHelper
+from timecraft.models import Event, Assignment
 from timecraft.utils import convert_keys
 
 
-import json
-from icecream import ic
+class Population:
+    def __init__(self, data_helper):
+        self.no_slots = data_helper.no_slots
+        self.no_groups = data_helper.no_groups
+        self.event_map = data_helper.event_map
+        self.group_to_index = data_helper.group_to_index
+        self.index_to_group = data_helper.index_to_group
+        self.pickable_event_ids_by_group = data_helper.pickable_event_ids_by_group
+        self.data_helper = data_helper
 
-
-@dataclass(frozen=True, slots=True)
-class Event:
-    courses: List[Course]
-    faculties: List[Faculty]
-    hours: int
-    student_group: str
-    fixed_slots: Optional[List[int]] = None
-
-    @classmethod
-    def create_events_from_assignments(
-        cls, assignments: List[Assignment]
-    ) -> List[Event]:
-        events: List[Event] = []
-        for assignment in assignments:
-            courses = assignment.courses
-            faculties = assignment.faculties
-            hours = assignment.hours
-            fixed_slots = assignment.fixed_slots
-            weighted_hours = assignment.weighted_hours
-            student_group = assignment.student_group
-            if assignment.is_shared:
-                for i in range(len(faculties)):
-                    events.append(
-                        cls(
-                            courses=courses,
-                            faculties=[faculties[i]],
-                            hours=weighted_hours[i],
-                            student_group=student_group,
-                        )
-                    )
-            else:
-                events.append(
-                    cls(
-                        courses=courses,
-                        faculties=faculties,
-                        hours=hours,
-                        fixed_slots=fixed_slots,
-                        student_group=student_group,
-                    )
+    def get_population(self, population_size=5):
+        population = np.zeros(
+            (population_size, self.no_groups, self.no_slots), dtype=int
+        )
+        for i in range(self.no_groups):
+            pickable_event_ids = self.pickable_event_ids_by_group[
+                self.index_to_group[i]
+            ]
+            if pickable_event_ids:
+                population[:, i, :] = choice(
+                    pickable_event_ids, size=(population_size, self.no_slots)
                 )
-        return events
+
+        initial_timetable = self.get_initial_timetable()
+
+        if initial_timetable.any():
+            mask = 1 - np.minimum(1, initial_timetable)
+            mask = np.expand_dims(mask, axis=0)
+            population = mask * population + np.expand_dims(initial_timetable, axis=0)
+
+        return initial_timetable, population
+
+    def get_initial_timetable(self):
+        timetable = np.zeros((self.no_groups, self.no_slots), dtype=int)
+        for id, event in self.event_map.items():
+            if event.fixed_slots:
+                group_index = self.group_to_index[event.student_group]
+                for i in event.fixed_slots:
+                    timetable[group_index, i] = id
+        return timetable
 
 
 def main():
@@ -128,8 +126,8 @@ def main():
                 "occupiedSlots": [16, 17, 18]
             }
         ],
-        "hours": 7,
-        "fixedSlots": [13, 14, 15],
+        "hours": 3,
+        "fixedSlots": [2, 3, 4],
         "studentGroup": "C"
     }
 ]"""
@@ -138,8 +136,9 @@ def main():
     json_dict = convert_keys(json_dict, "snakecase")
     assignments = [Assignment.from_json_dict(object) for object in json_dict]
     events = Event.create_events_from_assignments(assignments)
-    for event in events:
-        ic(event)
+    data_helper = DataHelper(2, 3, 3, events)
+    population = Population(data_helper)
+    ic(population.get_population())
 
 
 if __name__ == "__main__":
