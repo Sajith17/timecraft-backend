@@ -9,16 +9,17 @@ from timecraft.utils import convert_keys
 
 
 class Population:
-    def __init__(self, data_helper):
-        self.no_slots = data_helper.no_slots
-        self.no_groups = data_helper.no_groups
-        self.event_map = data_helper.event_map
-        self.group_to_index = data_helper.group_to_index
-        self.index_to_group = data_helper.index_to_group
-        self.pickable_event_ids_by_group = data_helper.pickable_event_ids_by_group
-        self.data_helper = data_helper
+    def __init__(self, data_helper: DataHelper):
+        self.no_slots: int = data_helper.no_slots
+        self.no_groups: int = data_helper.no_groups
+        self.event_map: dict[int, Event] = data_helper.event_map
+        self.group_to_index: dict[str, int] = data_helper.group_to_index
+        self.index_to_group: dict[int, str] = data_helper.index_to_group
+        self.pickable_event_ids_by_group: dict[
+            str, list[int]
+        ] = data_helper.pickable_event_ids_by_group
 
-    def get_population(self, population_size=5):
+    def get_population(self, population_size: int = 50) -> np.ndarray:
         population = np.zeros(
             (population_size, self.no_groups, self.no_slots), dtype=int
         )
@@ -31,16 +32,12 @@ class Population:
                     pickable_event_ids, size=(population_size, self.no_slots)
                 )
 
-        initial_timetable = self.get_initial_timetable()
+        initial_timetable = self._get_initial_timetable()
+        population = self._apply_initial_timetable(population, initial_timetable)
 
-        if initial_timetable.any():
-            mask = 1 - np.minimum(1, initial_timetable)
-            mask = np.expand_dims(mask, axis=0)
-            population = mask * population + np.expand_dims(initial_timetable, axis=0)
+        return population
 
-        return initial_timetable, population
-
-    def get_initial_timetable(self):
+    def _get_initial_timetable(self) -> np.ndarray:
         timetable = np.zeros((self.no_groups, self.no_slots), dtype=int)
         for id, event in self.event_map.items():
             if event.fixed_slots:
@@ -48,6 +45,15 @@ class Population:
                 for i in event.fixed_slots:
                     timetable[group_index, i] = id
         return timetable
+
+    def _apply_initial_timetable(
+        self, population: np.ndarray, initial_timetable: np.ndarray
+    ) -> np.ndarray:
+        if initial_timetable.any():
+            mask = 1 - np.minimum(1, initial_timetable)
+            mask = np.expand_dims(mask, axis=0)
+            population = mask * population + np.expand_dims(initial_timetable, axis=0)
+        return population
 
 
 def main():
@@ -138,7 +144,7 @@ def main():
     events = Event.create_events_from_assignments(assignments)
     data_helper = DataHelper(2, 3, 3, events)
     population = Population(data_helper)
-    ic(population.get_population())
+    ic(population.get_population(5))
 
 
 if __name__ == "__main__":
