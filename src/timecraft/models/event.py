@@ -1,145 +1,77 @@
-from __future__ import annotations
 from dataclasses import dataclass
 from typing import List, Optional
-from timecraft.models import Course, Faculty, Assignment
+from timecraft.models import Course, Faculty
 from timecraft.utils import convert_keys
-
-
-import json
 from icecream import ic
 
 
-@dataclass(frozen=True, slots=True)
-class Event:
-    courses: List[Course]
+@dataclass(slots=True, frozen=True)
+class Class:
+    course: Course
     faculties: List[Faculty]
-    hours: int
+
+    @property
+    def faculty_codes(self):
+        return [f.code for f in self.faculties]
+
+
+@dataclass(slots=True)
+class Event:
+    classes: List[Class]
+    no_hours: int
     student_group: str
     fixed_slots: Optional[List[int]] = None
+    _course_codes: Optional[List[str]] = None
+    _faculty_codes: Optional[List[str]] = None
 
-    @classmethod
-    def create_events_from_assignments(
-        cls, assignments: List[Assignment]
-    ) -> List[Event]:
-        events: List[Event] = []
-        for assignment in assignments:
-            courses = assignment.courses
-            faculties = assignment.faculties
-            hours = assignment.hours
-            fixed_slots = assignment.fixed_slots
-            weighted_hours = assignment.weighted_hours
-            student_group = assignment.student_group
-            if assignment.is_shared:
-                for i in range(len(faculties)):
-                    events.append(
-                        cls(
-                            courses=courses,
-                            faculties=[faculties[i]],
-                            hours=weighted_hours[i],
-                            student_group=student_group,
-                        )
-                    )
-            else:
-                events.append(
-                    cls(
-                        courses=courses,
-                        faculties=faculties,
-                        hours=hours,
-                        fixed_slots=fixed_slots,
-                        student_group=student_group,
-                    )
-                )
-        return events
+    @property
+    def course_codes(self):
+        if not self._course_codes:
+            self._course_codes = [c.course.code for c in self.classes]
+        return self._course_codes
+
+    @property
+    def faculty_codes(self):
+        if not self._faculty_codes:
+            self._faculty_codes = []
+            for c in self.classes:
+                self._faculty_codes += c.faculty_codes
+        return self._faculty_codes
 
 
 def main():
-    json_string = """[
-    {
-        "courseType": "Core",
-        "isShared": false,
-        "courses": [
-            {
-                "code": "CS101",
-                "name": "Computer Science 1"
-            },
-            {
-                "code": "CS201",
-                "name": "Computer Science 2"
-            }
+    event = Event(
+        classes=[
+            Class(
+                course=Course(
+                    code="CS101",
+                    name="Computer Science 1",
+                    faculties=[
+                        Faculty(
+                            code="CS", name="Computer Science", occupied_slots=[1, 2, 3]
+                        )
+                    ],
+                    no_hours=8,
+                    student_group="A",
+                ),
+                faculties=[Faculty(code="CS", name="Computer Science")],
+            ),
+            Class(
+                course=Course(
+                    code="CS201",
+                    name="Computer Science 2",
+                    faculties=[Faculty(code="CS", name="Computer Science")],
+                    no_hours=8,
+                    student_group="B",
+                ),
+                faculties=[Faculty(code="CS", name="Computer Science")],
+            ),
         ],
-        "faculties": [
-            {
-                "code": "CS",
-                "name": "Computer Science",
-                "occupiedSlots": [1, 2, 3]
-            }
-        ],
-        "hours": 8,
-        "fixedSlots": [1, 2, 3],
-        "studentGroup": "A"
-    },
-    {
-        "courseType": "Core",
-        "isShared": true,
-        "courses": [
-            {
-                "code": "MAT101",
-                "name": "Mathematics 1"
-            }
-        ],
-        "faculties": [
-            {
-                "code": "MATH",
-                "name": "Mathematics",
-                "occupiedSlots": [7, 8, 9]
-            },
-            {
-                "code": "PHY",
-                "name": "Physics",
-                "occupiedSlots": [10, 11, 12]
-            }
-        ],
-        "hours": 6,
-        "weightedHours": [2, 4],
-        "studentGroup": "B"
-    },
-    {
-        "courseType": "Elective",
-        "isShared": false,
-        "courses": [
-            {
-                "code": "ENG101",
-                "name": "English 1"
-            },
-            {
-                "code": "ENG201",
-                "name": "English 2"
-            }
-        ],
-        "faculties": [
-            {
-                "code": "ENG",
-                "name": "English",
-                "occupiedSlots": [13, 14, 15]
-            },
-            {
-                "code": "HIS",
-                "name": "History",
-                "occupiedSlots": [16, 17, 18]
-            }
-        ],
-        "hours": 7,
-        "fixedSlots": [13, 14, 15],
-        "studentGroup": "C"
-    }
-]"""
-
-    json_dict = json.loads(json_string)
-    json_dict = convert_keys(json_dict, "snakecase")
-    assignments = [Assignment.from_json_dict(object) for object in json_dict]
-    events = Event.create_events_from_assignments(assignments)
-    for event in events:
-        ic(event)
+        no_hours=16,
+        student_group="All",
+        fixed_slots=[1, 2, 3],
+    )
+    ic(event.faculty_codes, event.course_codes)
 
 
 if __name__ == "__main__":

@@ -1,2 +1,2 @@
-from .assignment import *
+from .course import *
 from .event import *

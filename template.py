@@ -12,7 +12,6 @@ list_of_files = [
     f"src/{project_name}/config.py",
     f"src/{project_name}/models/__init__.py",
     f"src/{project_name}/models/course.py",
-    f"src/{project_name}/models/class.py",
     f"src/{project_name}/models/event.py",
     f"src/{project_name}/services/__init__.py",
     f"src/{project_name}/services/data_helper.py",
