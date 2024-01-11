@@ -7,10 +7,10 @@ from icecream import ic
 import json
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(slots=True)
 class Faculty:
     code: str
-    name: str
+    name: Optional[str] = None
     occupied_slots: Optional[List[int]] = None
 
     @classmethod
@@ -18,13 +18,13 @@ class Faculty:
         return cls(**json_dict)
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(slots=True)
 class Course:
     code: str
-    name: str
     faculties: List[Faculty]
     no_hours: int
     student_group: str
+    name: Optional[str] = None
     faculty_hour_split: Optional[List[int]] = None
 
     @classmethod
@@ -34,7 +34,7 @@ class Course:
         return cls(**json_dict)
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(slots=True)
 class JointCourses:
     courses: List[Course]
     fixed_slots: Optional[List[int]] = None
@@ -55,7 +55,6 @@ def main():
             "courses": [
                 {
                 "code": "CS101",
-                "name": "Computer Science 1",
                 "faculties": [
                     {
                     "code": "CS",
@@ -71,8 +70,7 @@ def main():
                 "name": "Computer Science 2",
                 "faculties": [
                     {
-                    "code": "CS",
-                    "name": "Computer Science"
+                    "code": "CS"
                     }
                 ],
                 "no_hours": 8,

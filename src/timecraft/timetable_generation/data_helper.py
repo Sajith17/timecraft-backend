@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from typing import List
-from timecraft.models import Event, Assignment
+from timecraft.models import Event
 from timecraft.utils import convert_keys
 from icecream import ic
 
