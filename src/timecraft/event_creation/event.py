@@ -1,4 +1,16 @@
+from dataclasses import dataclass
+from typing import List, Optional
+from timecraft.models import Course, Faculty
 
+
+@dataclass(frozen=True)
+class Class:
+    course: Course
+    faculties: List[Faculty]
+
+    @property
+    def faculty_codes(self):
+        return [f.code for f in self.faculties]
 
 
 @dataclass(slots=True)
