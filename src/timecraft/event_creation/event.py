@@ -2,11 +2,14 @@ from dataclasses import dataclass
 from typing import List, Optional
 from timecraft.models import Course, Faculty
 
+from icecream import ic
+
 
 @dataclass(frozen=True)
 class Class:
-    course: Course
+    course_code: str
     faculties: List[Faculty]
+    no_hours: int
 
     @property
     def faculty_codes(self):

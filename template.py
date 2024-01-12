@@ -12,6 +12,8 @@ list_of_files = [
     f"src/{project_name}/constants.py",
     f"src/{project_name}/event_creation/__init__.py",
     f"src/{project_name}/event_creation/event.py",
+    f"src/{project_name}/event_creation/constraints.py",
+    f"src/{project_name}/event_creation/genome.py",
     f"src/{project_name}/timetable_generation/__init__.py",
     f"src/{project_name}/timetable_generation/data_helper.py",
     f"src/{project_name}/models.py",
@@ -20,6 +22,8 @@ list_of_files = [
     "setup.py",
     "notebook/trials.ipynb",
     "tests/test.py",
+    "tests/test_event_creation_genome.py",
+    "tests/test_event_creation_constraints.py",
 ]
 
 
