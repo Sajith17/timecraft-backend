@@ -117,6 +117,25 @@ class TestGenome(unittest.TestCase):
             },
         )
 
+    def test_fitness_score(self):
+        courses = [
+            Course(
+                code="CS101",
+                faculties=[Faculty(code="MATH1"), Faculty(code="Math2")],
+                no_hours=3,
+                student_group="A",
+            ),
+            Course(
+                code="CS102",
+                faculties=[Faculty(code="MATH3"), Faculty(code="MATH4")],
+                no_hours=3,
+                student_group="A",
+            ),
+        ]
+        fixed_slot = []
+        genome = Genome(courses=courses, fixed_slots=fixed_slot)
+        ic(genome.initialize)
+
 
 if __name__ == "__main__":
     unittest.main()

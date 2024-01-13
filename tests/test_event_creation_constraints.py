@@ -177,6 +177,9 @@ class TestConstraints(unittest.TestCase):
             2,
         )
 
+    def test_column_redundancy_constraint_no_overlap(self):
+        pass
+
 
 if __name__ == "__main__":
     unittest.main()

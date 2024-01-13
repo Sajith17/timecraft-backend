@@ -1,5 +1,10 @@
 from timecraft.event_creation.event import Class
-from timecraft.models import JointCourses, Course, Faculty
+from timecraft.models import Course, Faculty
+from timecraft.event_creation.constraints import (
+    FacultyOverlapConstraint,
+    HourConstraint,
+    ColumnRedundancyConstraint,
+)
 from typing import List
 
 from numpy.random import choice
@@ -8,13 +13,22 @@ from icecream import ic
 
 
 class Genome:
-    def __init__(self, joint_courses: JointCourses):
-        self.courses = joint_courses.courses
-        self.fixed_slots = joint_courses.fixed_slots
+    def __init__(self, courses: List[Course], fixed_slots: List[int]):
+        self.courses = courses
+        self._fixed_slots = fixed_slots
         self.genome = []
         self._classes = []
         self._classes_by_course_code: dict[str, List[int]] = None
-        self.fitness = -1
+        self.constraints = [
+            FacultyOverlapConstraint(),
+            HourConstraint(),
+            ColumnRedundancyConstraint(),
+        ]
+        self._fitness_score = -1
+
+    @property
+    def fixed_slots(self):
+        return self._fixed_slots if self._fixed_slots else []
 
     @property
     def classes_by_course_code(self):
@@ -55,28 +69,56 @@ class Genome:
             self.genome.append(list(choice(classes, size=self.no_hours)))
         return self
 
+    @property
+    def fitness_score(self):
+        if self._fitness_score == -1:
+            self._fitness_score = self._calculate_fitness_score()
+        return self._fitness_score
+
+    def _calculate_fitness_score(self):
+        fitness_score = 0
+        hard_fitness_score = sum(
+            constraint.calculate_fitness_score(
+                genome=self.genome,
+                classes=self._classes,
+                fixed_slots=self.fixed_slots,
+            )
+            for constraint in self.constraints
+            if constraint.type.value == "hard"
+        )
+        fitness_score += 1 / (1 + hard_fitness_score)
+        if not hard_fitness_score:
+            soft_fitness_score = sum(
+                constraint.calculate_fitness_score(
+                    genome=self.genome,
+                    classes=self._classes,
+                    fixed_slots=self.fixed_slots,
+                )
+                for constraint in self.constraints
+                if constraint.type.value == "soft"
+            )
+            fitness_score += 1 / (1 + soft_fitness_score)
+        return fitness_score
+
 
 def main():
-    joint_courses = JointCourses(
-        courses=[
-            Course(
-                code="CS101",
-                faculties=[Faculty(code="MATH1"), Faculty(code="MATH2")],
-                no_hours=5,
-                student_group="A",
-            ),
-            Course(
-                code="CS102",
-                faculties=[Faculty(code="MATH3"), Faculty(code="MATH4")],
-                no_hours=5,
-                student_group="A",
-                faculty_hour_split=[2, 3],
-            ),
-        ]
-    )
-    genome1 = Genome(joint_courses=joint_courses)
-    ic(genome1.initialize().genome)
+    courses = [
+        Course(
+            code="CS101",
+            faculties=[Faculty(code="MATH1"), Faculty(code="MATH2")],
+            no_hours=5,
+            student_group="A",
+        ),
+        Course(
+            code="CS102",
+            faculties=[Faculty(code="MATH3"), Faculty(code="MATH4")],
+            no_hours=5,
+            student_group="A",
+            faculty_hour_split=[2, 3],
+        ),
+    ]
+    genome = Genome(courses=courses, fixed_slots=None).initialize()
+    ic(genome.genome, genome.fitness_score)
 
 
-if __name__ == "__main__":
-    main()
+main()
