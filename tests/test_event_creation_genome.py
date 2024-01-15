@@ -16,7 +16,9 @@ class TestGenome(unittest.TestCase):
                 student_group="A",
             ),
         ]
-        genome = Genome(courses=courses, fixed_slots=None)
+        classes = Class.create_classes_from_courses(courses=courses)
+        no_slots = courses[0].no_hours
+        genome = Genome(classes=classes, no_slots=no_slots, fixed_slots=None)
         self.assertEqual(genome.classes_by_course_code, {"CS101": [0]})
 
     def test_classes_by_course_code_multiple_normal_courses(self):
@@ -34,7 +36,9 @@ class TestGenome(unittest.TestCase):
                 student_group="A",
             ),
         ]
-        genome = Genome(courses=courses, fixed_slots=None)
+        classes = Class.create_classes_from_courses(courses=courses)
+        no_slots = courses[0].no_hours
+        genome = Genome(classes=classes, no_slots=no_slots, fixed_slots=None)
         self.assertEqual(
             genome.classes_by_course_code,
             {
@@ -54,7 +58,9 @@ class TestGenome(unittest.TestCase):
             ),
         ]
 
-        genome = Genome(courses=courses, fixed_slots=None)
+        classes = Class.create_classes_from_courses(courses=courses)
+        no_slots = courses[0].no_hours
+        genome = Genome(classes=classes, no_slots=no_slots, fixed_slots=None)
         self.assertEqual(genome.classes_by_course_code, {"CS101": [0, 1]})
 
     def test_classes_by_course_code_multiple_shared_courses(self):
@@ -74,7 +80,9 @@ class TestGenome(unittest.TestCase):
                 faculty_hour_split=[2, 3],
             ),
         ]
-        genome = Genome(courses=courses, fixed_slots=None)
+        classes = Class.create_classes_from_courses(courses=courses)
+        no_slots = courses[0].no_hours
+        genome = Genome(classes=classes, no_slots=no_slots, fixed_slots=None)
         self.assertEqual(
             genome.classes_by_course_code,
             {
@@ -100,7 +108,9 @@ class TestGenome(unittest.TestCase):
             ),
         ]
 
-        genome = Genome(courses=courses, fixed_slots=None)
+        classes = Class.create_classes_from_courses(courses=courses)
+        no_slots = courses[0].no_hours
+        genome = Genome(classes=classes, no_slots=no_slots, fixed_slots=None)
         self.assertEqual(
             genome.classes_by_course_code,
             {
@@ -113,20 +123,23 @@ class TestGenome(unittest.TestCase):
         courses = [
             Course(
                 code="CS101",
-                faculties=[Faculty(code="MATH1"), Faculty(code="Math2")],
-                no_hours=3,
+                faculties=[Faculty(code="MATH1"), Faculty(code="MATH2")],
+                no_hours=5,
                 student_group="A",
             ),
             Course(
                 code="CS102",
                 faculties=[Faculty(code="MATH3"), Faculty(code="MATH4")],
-                no_hours=3,
+                no_hours=5,
                 student_group="A",
+                faculty_hour_split=[2, 3],
             ),
         ]
-        fixed_slot = []
-        genome = Genome(courses=courses, fixed_slots=fixed_slot)
-        ic(genome.assignment)
+        classes = Class.create_classes_from_courses(courses=courses)
+        no_slots = courses[0].no_hours
+        genome = Genome(classes=classes, no_slots=no_slots, fixed_slots=None)
+        genome.assignment = [[0, 0, 0, 0, 0], [1, 1, 2, 2, 2]]
+        self.assertGreater(genome.fitness_score, 1)
 
 
 if __name__ == "__main__":

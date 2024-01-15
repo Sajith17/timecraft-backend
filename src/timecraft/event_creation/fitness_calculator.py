@@ -7,7 +7,7 @@ class FitnessCalculator:
     def __init__(self, constraints: List[Constraint]):
         self.constraints = constraints
 
-    def calculate_fitness_score(
+    def calculate_score(
         self, assignment: List[List[int]], classes: List[Class], fixed_slots: List[int]
     ) -> float:
         fitness_score = 0
