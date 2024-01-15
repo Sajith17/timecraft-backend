@@ -34,26 +34,26 @@ class TestConstraints(unittest.TestCase):
                 no_hours=3,
             ),
         ]
-        genome = [[0, 0, 1, 0, 1, 1]]
+        assignment = [[0, 0, 1, 0, 1, 1]]
         fixed_slots = [0, 1, 2]
         self.assertEqual(
-            HourConstraint().calculate_fitness(
-                genome=genome, classes=classes, fixed_slots=fixed_slots
+            HourConstraint().calculate_fitness_score(
+                assignment=assignment, classes=classes, fixed_slots=fixed_slots
             ),
             0,
         )
-        genome = [[0, 0, 1, 0, 0, 0]]
+        assignment = [[0, 0, 1, 0, 0, 0]]
         fixed_slots = [0, 1, 2]
         self.assertEqual(
-            HourConstraint().calculate_fitness(
-                genome=genome, classes=classes, fixed_slots=fixed_slots
+            HourConstraint().calculate_fitness_score(
+                assignment=assignment, classes=classes, fixed_slots=fixed_slots
             ),
             2,
         )
-        genome = [[0, 0, 0, 0, 0, 0], [2, 2, 2, 2, 2, 2]]
+        assignment = [[0, 0, 0, 0, 0, 0], [2, 2, 2, 2, 2, 2]]
         self.assertEqual(
-            HourConstraint().calculate_fitness(
-                genome=genome, classes=classes, fixed_slots=fixed_slots
+            HourConstraint().calculate_fitness_score(
+                assignment=assignment, classes=classes, fixed_slots=fixed_slots
             ),
             6,
         )
@@ -71,11 +71,11 @@ class TestConstraints(unittest.TestCase):
                 no_hours=3,
             ),
         ]
-        genome = [[0, 0, 1, 0, 0, 1]]
+        assignment = [[0, 0, 1, 0, 0, 1]]
         fixed_slots = [0, 1, 2]
         self.assertEqual(
-            FacultyOverlapConstraint().calculate_fitness(
-                genome=genome, classes=classes, fixed_slots=fixed_slots
+            FacultyOverlapConstraint().calculate_fitness_score(
+                assignment=assignment, classes=classes, fixed_slots=fixed_slots
             ),
             0,
         )
@@ -93,11 +93,11 @@ class TestConstraints(unittest.TestCase):
                 no_hours=3,
             ),
         ]
-        genome = [[0, 0, 1, 0, 0, 1]]
+        assignment = [[0, 0, 1, 0, 0, 1]]
         fixed_slots = [0, 1, 2]
         self.assertEqual(
-            FacultyOverlapConstraint().calculate_fitness(
-                genome=genome, classes=classes, fixed_slots=fixed_slots
+            FacultyOverlapConstraint().calculate_fitness_score(
+                assignment=assignment, classes=classes, fixed_slots=fixed_slots
             ),
             1,
         )
@@ -115,11 +115,11 @@ class TestConstraints(unittest.TestCase):
                 no_hours=3,
             ),
         ]
-        genome = [[0, 1, 0, 1, 0, 1]]
+        assignment = [[0, 1, 0, 1, 0, 1]]
         fixed_slots = [0, 1, 2, 3, 4, 5]
         self.assertEqual(
-            FacultyOverlapConstraint().calculate_fitness(
-                genome=genome, classes=classes, fixed_slots=fixed_slots
+            FacultyOverlapConstraint().calculate_fitness_score(
+                assignment=assignment, classes=classes, fixed_slots=fixed_slots
             ),
             6,
         )
@@ -147,38 +147,35 @@ class TestConstraints(unittest.TestCase):
                 no_hours=3,
             ),
         ]
-        genome = [[1, 1, 1, 0, 0, 0], [2, 2, 2, 3, 3, 3]]
+        assignment = [[1, 1, 1, 0, 0, 0], [2, 2, 2, 3, 3, 3]]
         fixed_slots = []
         self.assertEqual(
-            ColumnRedundancyConstraint().calculate_fitness(
-                genome=genome, classes=classes, fixed_slots=fixed_slots
+            ColumnRedundancyConstraint().calculate_fitness_score(
+                assignment=assignment, classes=classes, fixed_slots=fixed_slots
             ),
             2,
         )
-        genome = [[1, 1, 1, 0, 0, 0], [3, 2, 3, 2, 3, 2]]
+        assignment = [[1, 1, 1, 0, 0, 0], [3, 2, 3, 2, 3, 2]]
         self.assertEqual(
-            ColumnRedundancyConstraint().calculate_fitness(
-                genome=genome, classes=classes, fixed_slots=fixed_slots
+            ColumnRedundancyConstraint().calculate_fitness_score(
+                assignment=assignment, classes=classes, fixed_slots=fixed_slots
             ),
             4,
         )
         fixed_slots = [1, 2, 3, 4, 5, 6]
         self.assertEqual(
-            ColumnRedundancyConstraint().calculate_fitness(
-                genome=genome, classes=classes, fixed_slots=fixed_slots
+            ColumnRedundancyConstraint().calculate_fitness_score(
+                assignment=assignment, classes=classes, fixed_slots=fixed_slots
             ),
             0,
         )
         fixed_slots = [1, 2, 3]
         self.assertEqual(
-            ColumnRedundancyConstraint().calculate_fitness(
-                genome=genome, classes=classes, fixed_slots=fixed_slots
+            ColumnRedundancyConstraint().calculate_fitness_score(
+                assignment=assignment, classes=classes, fixed_slots=fixed_slots
             ),
             2,
         )
-
-    def test_column_redundancy_constraint_no_overlap(self):
-        pass
 
 
 if __name__ == "__main__":

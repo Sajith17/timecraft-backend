@@ -24,10 +24,10 @@ class HourConstraint(Constraint):
         super().__init__(type=super().Type("hard"))
 
     def calculate_fitness_score(
-        self, genome: List[List[int]], classes: List[Class], fixed_slots: List[int]
+        self, assignment: List[List[int]], classes: List[Class], fixed_slots: List[int]
     ):
         fitness_score = 0
-        for row in genome:
+        for row in assignment:
             hours_by_class_index = dict()
             for class_index in row:
                 if class_index in hours_by_class_index:
@@ -47,13 +47,13 @@ class FacultyOverlapConstraint(Constraint):
         super().__init__(type=super().Type("hard"))
 
     def calculate_fitness_score(
-        self, genome: List[List[int]], classes: List[Class], fixed_slots: List[int]
+        self, assignment: List[List[int]], classes: List[Class], fixed_slots: List[int]
     ):
         fitness_score = 0
         for i, fixed_slot in enumerate(fixed_slots):
-            for j in range(len(genome)):
+            for j in range(len(assignment)):
                 faculty_occupied_slots = (
-                    classes[genome[j][i]].faculties[0].occupied_slots
+                    classes[assignment[j][i]].faculties[0].occupied_slots
                 )
                 if faculty_occupied_slots and fixed_slot in faculty_occupied_slots:
                     fitness_score += 1
@@ -68,12 +68,12 @@ class ColumnRedundancyConstraint(Constraint):
         super().__init__(type=super().Type("soft"))
 
     def calculate_fitness_score(
-        self, genome: List[List[int]], classes: List[Class], fixed_slots: List[int]
+        self, assignment: List[List[int]], classes: List[Class], fixed_slots: List[int]
     ):
         fitness_score = len(
             set(
-                tuple(genome[i][column_index] for i in range(len(genome)))
-                for column_index in range(len(fixed_slots), len(genome[0]))
+                tuple(assignment[i][column_index] for i in range(len(assignment)))
+                for column_index in range(len(fixed_slots), len(assignment[0]))
             )
         )
         ic("ColumnRedundancyConstraint", fitness_score)

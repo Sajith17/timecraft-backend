@@ -5,20 +5,20 @@ from timecraft.event_creation.constraints import (
     HourConstraint,
     ColumnRedundancyConstraint,
 )
-from typing import List
-
+from typing import List, Dict
 from numpy.random import choice
-
 from icecream import ic
 
 
 class Genome:
-    def __init__(self, courses: List[Course], fixed_slots: List[int]):
-        self.courses = courses
-        self._fixed_slots = fixed_slots
-        self.genome = []
-        self._classes = []
-        self._classes_by_course_code: dict[str, List[int]] = None
+    def __init__(
+        self, classes: List[Class], no_slots: int, fixed_slots: List[int] | None
+    ):
+        self.classes = classes
+        self.no_slots = no_slots
+        self.fixed_slots = fixed_slots if fixed_slots else []
+        self._classes_by_course_code: Dict[str, List[int]] | None = None
+        self.assignment = []
         self.constraints = [
             FacultyOverlapConstraint(),
             HourConstraint(),
@@ -26,48 +26,21 @@ class Genome:
         ]
         self._fitness_score = -1
 
-    @property
-    def fixed_slots(self):
-        return self._fixed_slots if self._fixed_slots else []
+    def initialize(self):
+        for classes in self.classes_by_course_code.values():
+            self.assignment.append(choice(a=classes, size=self.no_slots))  # type: ignore
+        return self
 
     @property
     def classes_by_course_code(self):
         if self._classes_by_course_code is None:
-            self._classes_by_course_code = {c.code: [] for c in self.courses}
-            for course in self.courses:
-                if not course.faculty_hour_split:
-                    self._classes.append(
-                        Class(
-                            course_code=course.code,
-                            faculties=course.faculties,
-                            no_hours=course.no_hours,
-                        )
-                    )
-                    self._classes_by_course_code[course.code].append(
-                        len(self._classes) - 1
-                    )
+            self._classes_by_course_code = {}
+            for i, c in enumerate(self.classes):
+                if c.course_code in self._classes_by_course_code:
+                    self._classes_by_course_code[c.course_code].append(i)
                 else:
-                    for i, faculty in enumerate(course.faculties):
-                        self._classes.append(
-                            Class(
-                                course_code=course.code,
-                                faculties=[faculty],
-                                no_hours=course.faculty_hour_split[i],
-                            )
-                        )
-                        self._classes_by_course_code[course.code].append(
-                            len(self._classes) - 1
-                        )
+                    self._classes_by_course_code[c.course_code] = [i]
         return self._classes_by_course_code
-
-    @property
-    def no_hours(self):
-        return self.courses[0].no_hours
-
-    def initialize(self):
-        for classes in self.classes_by_course_code.values():
-            self.genome.append(list(choice(classes, size=self.no_hours)))
-        return self
 
     @property
     def fitness_score(self):
@@ -79,8 +52,8 @@ class Genome:
         fitness_score = 0
         hard_fitness_score = sum(
             constraint.calculate_fitness_score(
-                genome=self.genome,
-                classes=self._classes,
+                assignment=self.assignment,
+                classes=self.classes,
                 fixed_slots=self.fixed_slots,
             )
             for constraint in self.constraints
@@ -90,8 +63,8 @@ class Genome:
         if not hard_fitness_score:
             soft_fitness_score = sum(
                 constraint.calculate_fitness_score(
-                    genome=self.genome,
-                    classes=self._classes,
+                    assignment=self.assignment,
+                    classes=self.classes,
                     fixed_slots=self.fixed_slots,
                 )
                 for constraint in self.constraints
@@ -117,8 +90,11 @@ def main():
             faculty_hour_split=[2, 3],
         ),
     ]
-    genome = Genome(courses=courses, fixed_slots=None).initialize()
-    ic(genome.genome, genome.fitness_score)
+    classes = Class.create_classes_from_courses(courses=courses)
+    no_slots = courses[0].no_hours
+    genome = Genome(classes=classes, no_slots=no_slots, fixed_slots=None).initialize()
+    ic(genome.assignment)
 
 
-main()
+if __name__ == "__main__":
+    main()
