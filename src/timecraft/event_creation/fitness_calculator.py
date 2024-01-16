@@ -7,24 +7,18 @@ class FitnessCalculator:
     def __init__(self, constraints: List[Constraint]):
         self.constraints = constraints
 
-    def calculate_score(
-        self, assignment: List[List[int]], classes: List[Class], fixed_slots: List[int]
-    ) -> float:
+    def calculate_score(self, assignment: List[List[int]]) -> float:
         fitness_score = 0
         fitness_score += self.scale(
             sum(
-                constraint.calculate_fitness_score(
-                    assignment=assignment, classes=classes, fixed_slots=fixed_slots
-                )
+                constraint.calculate_fitness_score(assignment=assignment)
                 for constraint in self.hard_constraints
             )
         )
         if fitness_score == 1:
             fitness_score += self.scale(
                 sum(
-                    constraint.calculate_fitness_score(
-                        assignment=assignment, classes=classes, fixed_slots=fixed_slots
-                    )
+                    constraint.calculate_fitness_score(assignment=assignment)
                     for constraint in self.soft_constraints
                 )
             )

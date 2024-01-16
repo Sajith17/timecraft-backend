@@ -1,12 +1,12 @@
 from __future__ import annotations
-from dataclasses import dataclass
-from typing import List,Optional
+from dataclasses import dataclass, field
+from typing import List, Dict, Optional
 from timecraft.models import Course, Faculty
 
 from icecream import ic
 
 
-@dataclass(frozen=True)
+@dataclass(slots=True)
 class Class:
     course_code: str
     faculties: List[Faculty]
@@ -38,6 +38,25 @@ class Class:
                         )
                     )
         return classes
+
+
+@dataclass
+class DataHelper:
+    classes: List[Class]
+    no_slots: int
+    fixed_slots: List[int] = field(default_factory=list)
+    _classes_by_course_code: Dict[str, int] = None
+
+    @property
+    def classes_by_course_code(self):
+        if self._classes_by_course_code is None:
+            self._classes_by_course_code = {}
+            for i, c in enumerate(self.classes):
+                if c.course_code in self._classes_by_course_code:
+                    self._classes_by_course_code[c.course_code].append(i)
+                else:
+                    self._classes_by_course_code[c.course_code] = [i]
+        return self._classes_by_course_code
 
 
 @dataclass(slots=True)
@@ -82,6 +101,8 @@ def main():
         ),
     ]
     classes = Class.create_classes_from_courses(courses=courses)
+    no_slots = courses[0].no_hours
+    ic(DataHelper(classes=classes, no_slots=no_slots))
 
 
 if __name__ == "__main__":

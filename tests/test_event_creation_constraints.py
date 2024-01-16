@@ -1,6 +1,6 @@
 import unittest
 from src.timecraft.models import Faculty
-from src.timecraft.event_creation.event import Class
+from src.timecraft.event_creation.event import Class, DataHelper
 from src.timecraft.event_creation.constraints import (
     HourConstraint,
     FacultyOverlapConstraint,
@@ -36,24 +36,25 @@ class TestConstraints(unittest.TestCase):
         ]
         assignment = [[0, 0, 1, 0, 1, 1]]
         fixed_slots = [0, 1, 2]
+        data_helper = DataHelper(classes=classes, no_slots=0, fixed_slots=fixed_slots)
         self.assertEqual(
-            HourConstraint().calculate_fitness_score(
-                assignment=assignment, classes=classes, fixed_slots=fixed_slots
+            HourConstraint(data_helper=data_helper).calculate_fitness_score(
+                assignment=assignment
             ),
             0,
         )
         assignment = [[0, 0, 1, 0, 0, 0]]
-        fixed_slots = [0, 1, 2]
+        data_helper.fixed_slots = [0, 1, 2]
         self.assertEqual(
-            HourConstraint().calculate_fitness_score(
-                assignment=assignment, classes=classes, fixed_slots=fixed_slots
+            HourConstraint(data_helper=data_helper).calculate_fitness_score(
+                assignment=assignment
             ),
             2,
         )
         assignment = [[0, 0, 0, 0, 0, 0], [2, 2, 2, 2, 2, 2]]
         self.assertEqual(
-            HourConstraint().calculate_fitness_score(
-                assignment=assignment, classes=classes, fixed_slots=fixed_slots
+            HourConstraint(data_helper=data_helper).calculate_fitness_score(
+                assignment=assignment
             ),
             6,
         )
@@ -73,9 +74,10 @@ class TestConstraints(unittest.TestCase):
         ]
         assignment = [[0, 0, 1, 0, 0, 1]]
         fixed_slots = [0, 1, 2]
+        data_helper = DataHelper(classes=classes, no_slots=0, fixed_slots=fixed_slots)
         self.assertEqual(
-            FacultyOverlapConstraint().calculate_fitness_score(
-                assignment=assignment, classes=classes, fixed_slots=fixed_slots
+            FacultyOverlapConstraint(data_helper=data_helper).calculate_fitness_score(
+                assignment=assignment
             ),
             0,
         )
@@ -95,9 +97,10 @@ class TestConstraints(unittest.TestCase):
         ]
         assignment = [[0, 0, 1, 0, 0, 1]]
         fixed_slots = [0, 1, 2]
+        data_helper = DataHelper(classes=classes, no_slots=0, fixed_slots=fixed_slots)
         self.assertEqual(
-            FacultyOverlapConstraint().calculate_fitness_score(
-                assignment=assignment, classes=classes, fixed_slots=fixed_slots
+            FacultyOverlapConstraint(data_helper=data_helper).calculate_fitness_score(
+                assignment=assignment
             ),
             1,
         )
@@ -117,9 +120,10 @@ class TestConstraints(unittest.TestCase):
         ]
         assignment = [[0, 1, 0, 1, 0, 1]]
         fixed_slots = [0, 1, 2, 3, 4, 5]
+        data_helper = DataHelper(classes=classes, no_slots=0, fixed_slots=fixed_slots)
         self.assertEqual(
-            FacultyOverlapConstraint().calculate_fitness_score(
-                assignment=assignment, classes=classes, fixed_slots=fixed_slots
+            FacultyOverlapConstraint(data_helper=data_helper).calculate_fitness_score(
+                assignment=assignment
             ),
             6,
         )
@@ -149,30 +153,31 @@ class TestConstraints(unittest.TestCase):
         ]
         assignment = [[1, 1, 1, 0, 0, 0], [2, 2, 2, 3, 3, 3]]
         fixed_slots = []
+        data_helper = DataHelper(classes=classes, no_slots=0, fixed_slots=fixed_slots)
         self.assertEqual(
-            ColumnRedundancyConstraint().calculate_fitness_score(
-                assignment=assignment, classes=classes, fixed_slots=fixed_slots
+            ColumnRedundancyConstraint(data_helper=data_helper).calculate_fitness_score(
+                assignment=assignment
             ),
             2,
         )
         assignment = [[1, 1, 1, 0, 0, 0], [3, 2, 3, 2, 3, 2]]
         self.assertEqual(
-            ColumnRedundancyConstraint().calculate_fitness_score(
-                assignment=assignment, classes=classes, fixed_slots=fixed_slots
+            ColumnRedundancyConstraint(data_helper=data_helper).calculate_fitness_score(
+                assignment=assignment
             ),
             4,
         )
-        fixed_slots = [1, 2, 3, 4, 5, 6]
+        data_helper.fixed_slots = [1, 2, 3, 4, 5, 6]
         self.assertEqual(
-            ColumnRedundancyConstraint().calculate_fitness_score(
-                assignment=assignment, classes=classes, fixed_slots=fixed_slots
+            ColumnRedundancyConstraint(data_helper=data_helper).calculate_fitness_score(
+                assignment=assignment
             ),
             0,
         )
-        fixed_slots = [1, 2, 3]
+        data_helper.fixed_slots = [1, 2, 3]
         self.assertEqual(
-            ColumnRedundancyConstraint().calculate_fitness_score(
-                assignment=assignment, classes=classes, fixed_slots=fixed_slots
+            ColumnRedundancyConstraint(data_helper=data_helper).calculate_fitness_score(
+                assignment=assignment
             ),
             2,
         )
