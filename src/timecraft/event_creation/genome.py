@@ -17,6 +17,7 @@ class Genome:
         self.data_helper = data_helper
         self.assignment = []
         self.fitness_calculator = FitnessCalculator(constraints=constraints)
+        self.if_fitness_changed = False
         self._fitness_score = -1
 
     def initialize(self):
@@ -26,10 +27,11 @@ class Genome:
 
     @property
     def fitness_score(self):
-        if self._fitness_score == -1:
+        if self._fitness_score == -1 or self.if_fitness_changed:
             self._fitness_score = self.fitness_calculator.calculate_score(
                 assignment=self.assignment
             )
+            self.if_fitness_changed = False
         return self._fitness_score
 
 

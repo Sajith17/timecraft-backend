@@ -2,6 +2,8 @@ from timecraft.event_creation.constraints import Constraint
 from timecraft.event_creation.event import Class
 from typing import List
 
+from icecream import ic
+
 
 class FitnessCalculator:
     def __init__(self, constraints: List[Constraint]):

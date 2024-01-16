@@ -2,6 +2,7 @@ from timecraft.event_creation.genome import Genome
 from timecraft.event_creation.event import Class, DataHelper
 from timecraft.event_creation.constraints import *
 from timecraft.models import Course, Faculty
+from timecraft.event_creation.fitness_calculator import FitnessCalculator
 from typing import List
 
 from numpy.random import choice, rand, randint
@@ -21,7 +22,7 @@ class GeneticAlgorithm:
             for _ in range(size)
         ]
 
-    def selection_pair(self, population: List[List[int]]):
+    def selection_pair(self, population: List[Genome]):
         fitness_array = [genome.fitness_score for genome in population]
         fitness_sum = sum(fitness_array)
         prob = [fitness / fitness_sum for fitness in fitness_array]
@@ -33,19 +34,17 @@ class GeneticAlgorithm:
         offspring_b = Genome(data_helper=self.data_helper, constraints=self.constraints)
         no_slots = self.data_helper.no_slots
         for i in range(len(self.data_helper.classes_by_course_code)):
-            if rand() < 1:
+            if rand() < 0.90:
                 p = randint(low=1, high=self.data_helper.no_slots - 1)
                 offspring_a.assignment.append(
-                    [parent_a.assignment[i][j] for j in range(0, p)]
-                    + [parent_b.assignment[i][j] for j in range(p, no_slots)]
+                    parent_a.assignment[i][:p] + parent_b.assignment[i][p:no_slots]
                 )
                 offspring_b.assignment.append(
-                    [parent_b.assignment[i][j] for j in range(0, p)]
-                    + [parent_a.assignment[i][j] for j in range(p, no_slots)]
+                    parent_b.assignment[i][:p] + parent_a.assignment[i][p:no_slots]
                 )
             else:
-                offspring_a.assignment.append(parent_a.assignment[i])
-                offspring_b.assignment.append(parent_b.assignment[i])
+                offspring_a.assignment.append(parent_a.assignment[i].copy())
+                offspring_b.assignment.append(parent_b.assignment[i].copy())
         return offspring_a, offspring_b
 
     def mutation(self, genome: Genome):
@@ -53,53 +52,79 @@ class GeneticAlgorithm:
         for i, classes in zip(
             range(len(classes_by_course_code)), classes_by_course_code.values()
         ):
-            if rand() < 1:
+            if rand() < 0.15:
                 index = randint(0, self.data_helper.no_slots)
                 genome.assignment[i][index] = choice(classes)
+                genome.if_fitness_changed = True
+                genome.fitness_calculator
         return genome
 
-    def run_evolution(
-        self,
-        population_limit: int = 10,
-        generation_limit: int = 100,
-        fitness_limit: int = 1,
-    ):
-        pass
+    def run_evolution(self, population_size=100, generation_limit=100):
+        population = self.generate_population(size=population_size)
+        for i in range(generation_limit):
+            population = sorted(
+                population, key=lambda genome: genome.fitness_score, reverse=True
+            )
+            # currrent_best_score = self.fitness(population[0])
+            # if currrent_best_score>self.best_score:
+            #     self.best_genome=population[0]
+            #     self.best_score = currrent_best_score
+            print(f"Generation {i}, score = {population[0].fitness_score}")
+            next_generation = population[0:2]
+            for _ in range(int(population_size / 2) - 1):
+                parents = self.selection_pair(population)
+                offspring_a, offspring_b = self.crossover(parents[0], parents[1])
+                offspring_a = self.mutation(offspring_a)
+                offspring_b = self.mutation(offspring_b)
+                next_generation.extend([offspring_a, offspring_b])
+
+            population = next_generation
+        population = sorted(
+            population, key=lambda genome: genome.fitness_score, reverse=True
+        )
+        print(f"Generation {i}, score = {population[0].fitness_score}")
+        return population[0], i
 
 
 def main():
     courses = [
         Course(
             code="CS101",
-            faculties=[Faculty(code="MATH1"), Faculty(code="MATH2")],
-            no_hours=5,
+            faculties=[
+                Faculty(code="MATH1", occupied_slots=[1, 3]),
+                Faculty(code="MATH2", occupied_slots=[2]),
+            ],
+            no_hours=6,
             student_group="A",
+            faculty_hour_split=[3, 3],
         ),
         Course(
             code="CS102",
-            faculties=[Faculty(code="MATH3"), Faculty(code="MATH4")],
-            no_hours=5,
+            faculties=[
+                Faculty(code="MATH5", occupied_slots=[1]),
+                Faculty(code="MATH6", occupied_slots=[2, 3]),
+            ],
+            no_hours=6,
             student_group="A",
-            faculty_hour_split=[2, 3],
+            faculty_hour_split=[3, 3],
         ),
     ]
     classes = Class.create_classes_from_courses(courses=courses)
     no_slots = courses[0].no_hours
-    data_helper = DataHelper(classes=classes, no_slots=no_slots)
+    fixed_slot = [1, 2, 3]
+    data_helper = DataHelper(classes=classes, no_slots=no_slots, fixed_slots=fixed_slot)
     constraints = [
         FacultyOverlapConstraint(data_helper=data_helper),
         HourConstraint(data_helper=data_helper),
         ColumnRedundancyConstraint(data_helper=data_helper),
     ]
     ga = GeneticAlgorithm(data_helper=data_helper, constraints=constraints)
-    population1 = ga.generate_population(size=10)
-    # ic([[g.assignment, g.fitness_score] for g in population1])
-    parent1, parent2 = ga.selection_pair(population=population1)
-    offspring1, offspring2 = ga.crossover(parent1, parent2)
-    # ic(parent1.assignment, parent2.assignment)
-    # ic(offspring1.assignment, offspring2.assignment)
-    ic(parent1.assignment)
-    ic(ga.mutation(parent1).assignment)
+    winner, _ = ga.run_evolution(population_size=100, generation_limit=100)
+    ic(winner.assignment)
+    ic(winner._fitness_score)
+    ic(winner.if_fitness_changed)
+    assignment = winner.assignment
+    ic(winner.fitness_calculator.calculate_score(assignment=assignment))
 
 
 if __name__ == "__main__":

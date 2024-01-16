@@ -37,7 +37,7 @@ class HourConstraint(Constraint):
                 max(hours - self.data_helper.classes[class_index].no_hours, 0)
                 for class_index, hours in hours_by_class_index.items()
             )
-        # ic("hour constraint", fitness_score)
+        # ic("HourConstraint", fitness_score)
         return fitness_score
 
 
