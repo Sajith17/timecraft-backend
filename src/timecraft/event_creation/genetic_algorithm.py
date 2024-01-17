@@ -1,7 +1,7 @@
 from timecraft.event_creation.genome import Genome
 from timecraft.event_creation.event import Class, DataHelper
 from timecraft.event_creation.constraints import *
-from timecraft.models import Course, Faculty
+from timecraft.models import Course, Faculty, JointCourses
 from timecraft.event_creation.fitness_calculator import FitnessCalculator
 from typing import List
 
@@ -34,7 +34,7 @@ class GeneticAlgorithm:
         offspring_b = Genome(data_helper=self.data_helper, constraints=self.constraints)
         no_slots = self.data_helper.no_slots
         for i in range(len(self.data_helper.classes_by_course_code)):
-            if rand() < 0.90:
+            if rand() < 0.85:
                 p = randint(low=1, high=self.data_helper.no_slots - 1)
                 offspring_a.assignment.append(
                     parent_a.assignment[i][:p] + parent_b.assignment[i][p:no_slots]
@@ -52,14 +52,20 @@ class GeneticAlgorithm:
         for i, classes in zip(
             range(len(classes_by_course_code)), classes_by_course_code.values()
         ):
-            if rand() < 0.15:
+            if rand() < 0.70:
                 index = randint(0, self.data_helper.no_slots)
                 genome.assignment[i][index] = choice(classes)
                 genome.if_fitness_changed = True
                 genome.fitness_calculator
         return genome
 
-    def run_evolution(self, population_size=100, generation_limit=100):
+    def run_evolution(
+        self,
+        population_size=100,
+        generation_limit=100,
+        fitness_limit=1.5,
+        verbose=True,
+    ):
         population = self.generate_population(size=population_size)
         for i in range(generation_limit):
             population = sorted(
@@ -69,7 +75,10 @@ class GeneticAlgorithm:
             # if currrent_best_score>self.best_score:
             #     self.best_genome=population[0]
             #     self.best_score = currrent_best_score
-            print(f"Generation {i}, score = {population[0].fitness_score}")
+            if population[0].fitness_score >= fitness_limit:
+                break
+            if verbose:
+                print(f"Generation {i}, score = {population[0].fitness_score}")
             next_generation = population[0:2]
             for _ in range(int(population_size / 2) - 1):
                 parents = self.selection_pair(population)
@@ -91,8 +100,8 @@ def main():
         Course(
             code="CS101",
             faculties=[
-                Faculty(code="MATH1", occupied_slots=[1, 3]),
-                Faculty(code="MATH2", occupied_slots=[2]),
+                Faculty(code="MATH1", occupied_slots=[]),
+                Faculty(code="MATH2", occupied_slots=[]),
             ],
             no_hours=6,
             student_group="A",
@@ -101,25 +110,25 @@ def main():
         Course(
             code="CS102",
             faculties=[
-                Faculty(code="MATH5", occupied_slots=[1]),
-                Faculty(code="MATH6", occupied_slots=[2, 3]),
+                Faculty(code="MATH5", occupied_slots=[]),
+                Faculty(code="MATH6", occupied_slots=[]),
             ],
             no_hours=6,
             student_group="A",
             faculty_hour_split=[3, 3],
         ),
     ]
-    classes = Class.create_classes_from_courses(courses=courses)
-    no_slots = courses[0].no_hours
-    fixed_slot = [1, 2, 3]
-    data_helper = DataHelper(classes=classes, no_slots=no_slots, fixed_slots=fixed_slot)
+    fixed_slots = [1, 2, 3]
+    data_helper = DataHelper(
+        joint_courses=JointCourses(courses=courses, fixed_slots=fixed_slots)
+    )
     constraints = [
         FacultyOverlapConstraint(data_helper=data_helper),
         HourConstraint(data_helper=data_helper),
         ColumnRedundancyConstraint(data_helper=data_helper),
     ]
     ga = GeneticAlgorithm(data_helper=data_helper, constraints=constraints)
-    winner, _ = ga.run_evolution(population_size=100, generation_limit=100)
+    winner, _ = ga.run_evolution(population_size=150, generation_limit=100)
     ic(winner.assignment)
     ic(winner._fitness_score)
     ic(winner.if_fitness_changed)

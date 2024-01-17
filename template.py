@@ -16,6 +16,7 @@ list_of_files = [
     f"src/{project_name}/event_creation/genome.py",
     f"src/{project_name}/event_creation/fitness_calculator.py",
     f"src/{project_name}/event_creation/genetic_algorithm.py",
+    f"src/{project_name}/event_creation/event_creation.py",
     f"src/{project_name}/timetable_generation/__init__.py",
     f"src/{project_name}/timetable_generation/data_helper.py",
     f"src/{project_name}/models.py",

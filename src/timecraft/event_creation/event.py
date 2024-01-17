@@ -1,7 +1,7 @@
 from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import List, Dict, Optional
-from timecraft.models import Course, Faculty
+from timecraft.models import Course, Faculty, JointCourses
 
 from icecream import ic
 
@@ -42,14 +42,31 @@ class Class:
 
 @dataclass
 class DataHelper:
-    classes: List[Class]
-    no_slots: int
-    fixed_slots: List[int] = field(default_factory=list)
-    _classes_by_course_code: Dict[str, int] = None
+    joint_courses: JointCourses
+    _classes: List[Class] = None
+    _classes_by_course_code: Dict[str, List[int]] = None
+
+    @property
+    def courses(self):
+        return self.joint_courses.courses
+
+    @property
+    def fixed_slots(self):
+        return self.joint_courses.fixed_slots if self.joint_courses.fixed_slots else []
+
+    @property
+    def no_slots(self):
+        return self.courses[0].no_hours
+
+    @property
+    def classes(self):
+        if not self._classes:
+            self._classes = Class.create_classes_from_courses(courses=self.courses)
+        return self._classes
 
     @property
     def classes_by_course_code(self):
-        if self._classes_by_course_code is None:
+        if not self._classes_by_course_code:
             self._classes_by_course_code = {}
             for i, c in enumerate(self.classes):
                 if c.course_code in self._classes_by_course_code:
@@ -71,7 +88,7 @@ class Event:
     @property
     def course_codes(self):
         if not self._course_codes:
-            self._course_codes = [c.course.code for c in self.classes]
+            self._course_codes = [c.course_code for c in self.classes]
         return self._course_codes
 
     @property

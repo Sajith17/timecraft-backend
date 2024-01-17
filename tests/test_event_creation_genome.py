@@ -1,7 +1,7 @@
 import unittest
 from src.timecraft.event_creation.genome import Genome
 from src.timecraft.event_creation.event import Class, Event
-from src.timecraft.models import JointCourses, Course, Faculty
+from src.timecraft.models import JointCourses, Course, Faculty, JointCourses
 from timecraft.event_creation.constraints import *
 
 from icecream import ic
@@ -24,9 +24,9 @@ class TestGenome(unittest.TestCase):
                 faculty_hour_split=[2, 3],
             ),
         ]
-        classes = Class.create_classes_from_courses(courses=courses)
-        no_slots = courses[0].no_hours
-        data_helper = DataHelper(classes=classes, no_slots=no_slots)
+        fixed_slot = []
+        joint_courses = JointCourses(courses=courses, fixed_slots=fixed_slot)
+        data_helper = DataHelper(joint_courses=joint_courses)
         constraints = [
             FacultyOverlapConstraint(data_helper=data_helper),
             HourConstraint(data_helper=data_helper),
