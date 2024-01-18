@@ -61,7 +61,7 @@ class GeneticAlgorithm:
 
     def run_evolution(
         self,
-        population_size=100,
+        population_size=150,
         generation_limit=100,
         fitness_limit=1.5,
         verbose=True,
@@ -92,7 +92,7 @@ class GeneticAlgorithm:
             population, key=lambda genome: genome.fitness_score, reverse=True
         )
         print(f"Generation {i}, score = {population[0].fitness_score}")
-        return population[0], i
+        return population[0]
 
 
 def main():

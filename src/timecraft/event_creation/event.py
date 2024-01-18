@@ -59,6 +59,10 @@ class DataHelper:
         return self.courses[0].no_hours
 
     @property
+    def student_group(self):
+        return self.courses[0].student_group
+
+    @property
     def classes(self):
         if not self._classes:
             self._classes = Class.create_classes_from_courses(courses=self.courses)
