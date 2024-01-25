@@ -109,7 +109,7 @@ class Event:
         if not self._faculty_codes:
             self._faculty_codes = []
             for c in self.classes:
-                self._faculty_codes += c.faculty_codes
+                self._faculty_codes.extend(c.faculty_codes)
         return self._faculty_codes
 
 

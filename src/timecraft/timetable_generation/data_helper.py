@@ -18,17 +18,18 @@ class DataHelper:
 
     no_hours: int
     no_days: int
+    student_groups: List[str]
     events: List[Event]
     faculties: List[Faculty]
     _occupied_faculties_by_slots: List[List[str]] = None
-    _events_by_student_group: Dict[str, List[Event]] = None
+    _events_by_student_group: Dict[str, List[List[int]]] = None
 
     @property
     def no_slots(self):
         return self.no_hours * self.no_days
 
     @property
-    def occupied_faculties_by_slots(self):
+    def occupied_faculty_codes_by_slots(self):
         if not self._occupied_faculties_by_slots:
             self._occupied_faculties_by_slots = [[] for _ in range(self.no_slots)]
             for faculty in self.faculties:
@@ -42,12 +43,14 @@ class DataHelper:
     @property
     def events_by_student_group(self):
         if not self._events_by_student_group:
-            self._events_by_student_group = {}
+            self._events_by_student_group = {
+                student_group: [[], []] for student_group in self.student_groups
+            }
             for i, event in enumerate(self.events):
-                if event.student_group in self._events_by_student_group:
-                    self._events_by_student_group[event.student_group].append(i)
+                if event.fixed_slots:
+                    self._events_by_student_group[event.student_group][1].append(i)
                 else:
-                    self._events_by_student_group[event.student_group] = [i]
+                    self._events_by_student_group[event.student_group][0].append(i)
         return self._events_by_student_group
 
 

@@ -25,7 +25,9 @@ class EventCreation:
             genetic_algorithm = GeneticAlgorithm(
                 data_helper=data_helper, constraints=constraints
             )
-            genome = genetic_algorithm.run_evolution(verbose=verbose)
+            genome = genetic_algorithm.run_evolution(
+                generation_limit=10, verbose=verbose
+            )
             events.extend(
                 self._create_events_from_assignment(
                     assigment=genome.assignment, data_helper=data_helper
