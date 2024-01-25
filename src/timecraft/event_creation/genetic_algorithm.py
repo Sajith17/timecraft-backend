@@ -71,10 +71,6 @@ class GeneticAlgorithm:
             population = sorted(
                 population, key=lambda genome: genome.fitness_score, reverse=True
             )
-            # currrent_best_score = self.fitness(population[0])
-            # if currrent_best_score>self.best_score:
-            #     self.best_genome=population[0]
-            #     self.best_score = currrent_best_score
             if population[0].fitness_score >= fitness_limit:
                 break
             if verbose:
@@ -91,7 +87,8 @@ class GeneticAlgorithm:
         population = sorted(
             population, key=lambda genome: genome.fitness_score, reverse=True
         )
-        print(f"Generation {i}, score = {population[0].fitness_score}")
+        if verbose:
+            print(f"Generation {i}, score = {population[0].fitness_score}")
         return population[0]
 
 

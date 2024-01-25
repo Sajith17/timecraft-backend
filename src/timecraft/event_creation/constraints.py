@@ -8,8 +8,8 @@ from timecraft.event_creation.event import Class, DataHelper
 
 class Constraint(ABC):
     class Type(Enum):
-        hard = "hard"
-        soft = "soft"
+        HARD = "hard"
+        SOFT = "soft"
 
     def __init__(self, type: Type):
         self.type = type

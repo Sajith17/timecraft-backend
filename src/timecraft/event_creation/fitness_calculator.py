@@ -31,7 +31,7 @@ class FitnessCalculator:
         return [
             constraint
             for constraint in self.constraints
-            if constraint.type.value == "hard"
+            if constraint.type == constraint.Type.HARD
         ]
 
     @property
@@ -39,7 +39,7 @@ class FitnessCalculator:
         return [
             constraint
             for constraint in self.constraints
-            if constraint.type.value == "soft"
+            if constraint.type == constraint.Type.SOFT
         ]
 
     @staticmethod

@@ -6,13 +6,14 @@ from timecraft.event_creation.constraints import *
 from icecream import ic
 
 from typing import List, Dict, Tuple
+import json
 
 
 class EventCreation:
     def __init__(self, joint_courses_list: List[JointCourses]):
         self.joint_courses_list = joint_courses_list
 
-    def get_events(self):
+    def get_events(self, verbose=True):
         events = []
         for joint_courses in self.joint_courses_list:
             data_helper = DataHelper(joint_courses=joint_courses)
@@ -24,7 +25,7 @@ class EventCreation:
             genetic_algorithm = GeneticAlgorithm(
                 data_helper=data_helper, constraints=constraints
             )
-            genome = genetic_algorithm.run_evolution()
+            genome = genetic_algorithm.run_evolution(verbose=verbose)
             events.extend(
                 self._create_events_from_assignment(
                     assigment=genome.assignment, data_helper=data_helper
@@ -98,17 +99,26 @@ def main():
         ),
     ]
     fixed_slots = [1, 2, 3, 4, 5]
-    # data_helper = DataHelper(
-    #     joint_courses=JointCourses(courses=courses, fixed_slots=fixed_slots)
-    # )
-    # assignment = [[0, 0, 0, 1, 1, 1], [2, 2, 2, 3, 3, 3]]
-    # ec = EventCreation(None)._create_events_from_assignment(assignment, data_helper)
-    # ic(ec)
+    data_helper = DataHelper(
+        joint_courses=JointCourses(courses=courses, fixed_slots=fixed_slots)
+    )
+    assignment = [[0, 0, 0, 1, 1, 1], [2, 2, 2, 3, 3, 3]]
+    ec = EventCreation(None)._create_events_from_assignment(assignment, data_helper)
+    ic(ec)
     joint_courses_list = [JointCourses(courses=courses, fixed_slots=fixed_slots)]
     ic(joint_courses_list[0])
     ec = EventCreation(joint_courses_list=joint_courses_list)
-    events = ec.get_events()
+    events = ec.get_events(verbose=True)
     ic(events)
+    # data_path = r"C:\Users\sajit\OneDrive\Documents\Desktop\Pythonn\Git\timecraft-backend\src\timecraft\sample_data.json"
+    # with open(data_path, "r") as f:
+    #     data = json.load(f)
+    # joint_courses_list = [
+    #     JointCourses.from_json_dict(joint_courses)
+    #     for joint_courses in data["joint_courses_list"]
+    # ]
+    # event_creation = EventCreation(joint_courses_list=joint_courses_list)
+    # ic(event_creation.get_events(verbose=False))
 
 
 if __name__ == "__main__":

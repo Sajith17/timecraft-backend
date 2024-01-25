@@ -85,8 +85,9 @@ class Event:
     classes: List[Class]
     no_hours: int
     student_group: str
-    fixed_slots: Optional[List[int]] = None
-    _course_codes: Optional[List[str]] = None
+    fixed_slots: List[int] = field(default_factory=list)
+    _course_codes: List[str] = None
+    _faculties: List[Faculty] = None
     _faculty_codes: Optional[List[str]] = None
 
     @property
@@ -94,6 +95,14 @@ class Event:
         if not self._course_codes:
             self._course_codes = [c.course_code for c in self.classes]
         return self._course_codes
+
+    @property
+    def faculties(self):
+        if not self._faculties:
+            self._faculties = []
+            for c in self.classes:
+                self._faculties.extend(c.faculties)
+        return self._faculties
 
     @property
     def faculty_codes(self):
@@ -122,8 +131,9 @@ def main():
         ),
     ]
     classes = Class.create_classes_from_courses(courses=courses)
+    ic(classes[0].faculties)
     no_slots = courses[0].no_hours
-    ic(DataHelper(classes=classes, no_slots=no_slots))
+    # ic(DataHelper(classes=classes, no_slots=no_slots))
 
 
 if __name__ == "__main__":
