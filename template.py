@@ -22,6 +22,7 @@ list_of_files = [
     f"src/{project_name}/timetable_generation/data_helper.py",
     f"src/{project_name}/timetable_generation/genome.py",
     f"src/{project_name}/timetable_generation/constraints.py",
+    f"src/{project_name}/timetable_generation/fitness_calculator.py",
     f"src/{project_name}/models.py",
     f"src/{project_name}/pipeline.py",
     "requirements.txt",

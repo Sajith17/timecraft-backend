@@ -55,7 +55,7 @@ class FacultyOverlapConstraint(Constraint):
                     self.data_helper.occupied_faculty_codes_by_slots[slot]
                 )
             # ic(faculty_code_list, set(faculty_code_list))
-            fitness_score += (len(faculty_code_list) - len(set(faculty_code_list))) ** 2
+            fitness_score += len(faculty_code_list) - len(set(faculty_code_list))
         return fitness_score
 
 
@@ -85,6 +85,31 @@ class FacultyWorkloadConstraint(Constraint):
         return fitness_score
 
 
+class CourseFrequencyConstraint(Constraint):
+    def __init__(self, data_helper: DataHelper):
+        super().__init__(type=super().Type("soft"))
+        self.data_helper = data_helper
+
+    def calculate_fitness_score(self, timetable):
+        fitness_score = 0
+        no_hours = self.data_helper.no_hours
+        for day in range(self.data_helper.no_days):
+            for group_index in range(len(self.data_helper.student_groups)):
+                course_code_list = []
+                for slot in range(day * no_hours, (day + 1) * no_hours):
+                    course_code_list.append(
+                        self.data_helper.events[
+                            timetable[group_index][slot]
+                        ].course_codes[0]
+                    )
+                fitness_score += (
+                    len(course_code_list) - len(set(course_code_list))
+                ) ** 2
+        return fitness_score / (
+            len(self.data_helper.student_groups) * self.data_helper.no_days
+        )
+
+
 def main():
     data_helper = DataHelper(**get_data())
     timetable = Genome(data_helper=data_helper, constraints=None).initialize().timetable
@@ -99,11 +124,16 @@ def main():
     #         timetable=timetable
     #     )
     # )
-    ic(
-        FacultyWorkloadConstraint(data_helper=data_helper).calculate_fitness_score(
-            timetable=timetable
-        )
-    )
+    # ic(
+    #     FacultyWorkloadConstraint(data_helper=data_helper).calculate_fitness_score(
+    #         timetable=timetable
+    #     )
+    # )
+    # ic(
+    #     CourseFrequencyConstraint(data_helper=data_helper).calculate_fitness_score(
+    #         timetable=timetable
+    #     )
+    # )
 
 
 if __name__ == "__main__":
