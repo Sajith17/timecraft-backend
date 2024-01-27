@@ -4,6 +4,7 @@ from timecraft.timetable_generation.genome import Genome
 
 from timecraft.sample_data_prep import get_data
 
+import math
 import numpy as np
 from typing import List
 from collections import Counter
@@ -25,16 +26,9 @@ class HourConstraint(Constraint):
                 else:
                     event_freq[j] = 1
         fitness_score = sum(
-            (event_freq[event_index] - self.data_helper.events[event_index].no_hours)
-            ** 2
+            abs(event_freq[event_index] - self.data_helper.events[event_index].no_hours)
             for event_index in event_freq
-        ) / len(event_freq)
-        # ic(
-        #     {
-        #         key: (event_freq[key], self.data_helper.events[key].no_hours)
-        #         for key in event_freq
-        #     }
-        # )
+        )
         return fitness_score
 
 
@@ -51,10 +45,9 @@ class FacultyOverlapConstraint(Constraint):
                 faculty_code_list.extend(
                     self.data_helper.events[timetable[group_index][slot]].faculty_codes
                 )
-                faculty_code_list.extend(
-                    self.data_helper.occupied_faculty_codes_by_slots[slot]
-                )
-            # ic(faculty_code_list, set(faculty_code_list))
+            faculty_code_list.extend(
+                self.data_helper.occupied_faculty_codes_by_slots[slot]
+            )
             fitness_score += len(faculty_code_list) - len(set(faculty_code_list))
         return fitness_score
 
@@ -119,11 +112,11 @@ def main():
     #         timetable=[[19], [11], [14]]
     #     )
     # )
-    # ic(
-    #     FacultyOverlapConstraint(data_helper=data_helper).calculate_fitness_score(
-    #         timetable=timetable
-    #     )
-    # )
+    ic(
+        FacultyOverlapConstraint(data_helper=data_helper).calculate_fitness_score(
+            timetable=timetable
+        )
+    )
     # ic(
     #     FacultyWorkloadConstraint(data_helper=data_helper).calculate_fitness_score(
     #         timetable=timetable

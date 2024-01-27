@@ -1,6 +1,7 @@
 from timecraft.timetable_generation.data_helper import DataHelper
 from timecraft.event_creation.constraints import Constraint
-from timecraft.timetable_generation.constraints import *
+
+# from timecraft.timetable_generation.constraints import *
 from timecraft.timetable_generation.fitness_calculator import FitnessCalculator
 from timecraft.sample_data_prep import get_data
 
@@ -49,10 +50,10 @@ class Genome:
 def main():
     data_helper = DataHelper(**get_data())
     constraints = [
-        FacultyOverlapConstraint(data_helper=data_helper),
-        FacultyWorkloadConstraint(data_helper=data_helper),
-        HourConstraint(data_helper=data_helper),
-        CourseFrequencyConstraint(data_helper=data_helper),
+        # FacultyOverlapConstraint(data_helper=data_helper),
+        # FacultyWorkloadConstraint(data_helper=data_helper),
+        # HourConstraint(data_helper=data_helper),
+        # CourseFrequencyConstraint(data_helper=data_helper),
     ]
     genome = Genome(data_helper=data_helper, constraints=constraints).initialize()
     ic(genome.fitness_score)

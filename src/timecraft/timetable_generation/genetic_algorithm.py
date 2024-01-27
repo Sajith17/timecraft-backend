@@ -1,9 +1,6 @@
-from timecraft.event_creation.genome import Genome
-from timecraft.event_creation.event import Class, DataHelper
-from timecraft.event_creation.constraints import *
-from timecraft.models import Course, Faculty, JointCourses
-from timecraft.event_creation.fitness_calculator import FitnessCalculator
-from typing import List
+from timecraft.timetable_generation.data_helper import DataHelper
+from timecraft.timetable_generation.constraints import *
+from timecraft.timetable_generation.genome import Genome
 
 from numpy.random import choice, rand, randint
 from icecream import ic
@@ -33,30 +30,35 @@ class GeneticAlgorithm:
         offspring_a = Genome(data_helper=self.data_helper, constraints=self.constraints)
         offspring_b = Genome(data_helper=self.data_helper, constraints=self.constraints)
         no_slots = self.data_helper.no_slots
-        for i in range(len(self.data_helper.classes_by_course_code)):
-            if rand() < 0.85:
+        for i in range(len(self.data_helper.student_groups)):
+            if rand() < 0.70:
                 p = randint(low=1, high=self.data_helper.no_slots - 1)
-                offspring_a.assignment.append(
-                    parent_a.assignment[i][:p] + parent_b.assignment[i][p:no_slots]
+                offspring_a.timetable.append(
+                    parent_a.timetable[i][:p] + parent_b.timetable[i][p:no_slots]
                 )
-                offspring_b.assignment.append(
-                    parent_b.assignment[i][:p] + parent_a.assignment[i][p:no_slots]
+                offspring_b.timetable.append(
+                    parent_b.timetable[i][:p] + parent_a.timetable[i][p:no_slots]
                 )
             else:
-                offspring_a.assignment.append(parent_a.assignment[i].copy())
-                offspring_b.assignment.append(parent_b.assignment[i].copy())
+                offspring_a.timetable.append(parent_a.timetable[i].copy())
+                offspring_b.timetable.append(parent_b.timetable[i].copy())
         return offspring_a, offspring_b
 
     def mutation(self, genome: Genome):
-        classes_by_course_code = self.data_helper.classes_by_course_code
-        for i, classes in zip(
-            range(len(classes_by_course_code)), classes_by_course_code.values()
+        events_by_student_group = self.data_helper.events_by_student_group
+        available_slots_by_student_group = (
+            self.data_helper.available_slots_by_student_group
+        )
+        for i, events, available_slots in zip(
+            range(len(events_by_student_group)),
+            events_by_student_group.values(),
+            available_slots_by_student_group.values(),
         ):
-            if rand() < 0.70:
-                index = randint(0, self.data_helper.no_slots)
-                genome.assignment[i][index] = choice(classes)
+            if rand() < 0.15:
+                pickable_events, _ = events
+                index = choice(available_slots)
+                genome.timetable[i][index] = choice(pickable_events)
                 genome.if_fitness_changed = True
-                # genome.fitness_calculator
         return genome
 
     def run_evolution(
@@ -93,44 +95,19 @@ class GeneticAlgorithm:
 
 
 def main():
-    courses = [
-        Course(
-            code="CS101",
-            faculties=[
-                Faculty(code="MATH1", occupied_slots=[]),
-                Faculty(code="MATH2", occupied_slots=[]),
-            ],
-            no_hours=6,
-            student_group="A",
-            faculty_hour_split=[3, 3],
-        ),
-        Course(
-            code="CS102",
-            faculties=[
-                Faculty(code="MATH5", occupied_slots=[]),
-                Faculty(code="MATH6", occupied_slots=[]),
-            ],
-            no_hours=6,
-            student_group="A",
-            faculty_hour_split=[3, 3],
-        ),
-    ]
-    fixed_slots = [1, 2, 3]
-    data_helper = DataHelper(
-        joint_courses=JointCourses(courses=courses, fixed_slots=fixed_slots)
-    )
+    data_helper = DataHelper(**get_data(verbose=False))
     constraints = [
-        # FacultyOverlapConstraint(data_helper=data_helper),
+        FacultyOverlapConstraint(data_helper=data_helper),
+        FacultyWorkloadConstraint(data_helper=data_helper),
         HourConstraint(data_helper=data_helper),
-        ColumnRedundancyConstraint(data_helper=data_helper),
+        CourseFrequencyConstraint(data_helper=data_helper),
     ]
     ga = GeneticAlgorithm(data_helper=data_helper, constraints=constraints)
-    winner = ga.run_evolution(population_size=150, generation_limit=100)
-    ic(winner.assignment)
-    ic(winner._fitness_score)
-    ic(winner.if_fitness_changed)
-    assignment = winner.assignment
-    ic(winner.fitness_calculator.calculate_score(assignment=assignment))
+    winner = ga.run_evolution(
+        population_size=600, generation_limit=1000, fitness_limit=2.0
+    )
+    ic(np.array(winner.timetable))
+    ic(winner.fitness_score)
 
 
 if __name__ == "__main__":

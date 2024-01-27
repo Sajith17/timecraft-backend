@@ -23,6 +23,7 @@ class DataHelper:
     faculties: List[Faculty]
     _occupied_faculties_by_slots: List[List[str]] = None
     _events_by_student_group: Dict[str, List[List[int]]] = None
+    _available_slots_by_student_group: Dict[str, List[int]] = None
 
     @property
     def no_slots(self):
@@ -53,10 +54,28 @@ class DataHelper:
                     self._events_by_student_group[event.student_group][0].append(i)
         return self._events_by_student_group
 
+    @property
+    def available_slots_by_student_group(self):
+        if not self._available_slots_by_student_group:
+            self._available_slots_by_student_group = {
+                student_group: [] for student_group in self.student_groups
+            }
+            for student_group, events in self.events_by_student_group.items():
+                _, fixed_events = events
+                fixed_slots = []
+                for event in fixed_events:
+                    fixed_slots.extend(self.events[event].fixed_slots)
+                self._available_slots_by_student_group[student_group] = [
+                    slot for slot in range(self.no_slots) if slot not in fixed_slots
+                ]
+        return self._available_slots_by_student_group
+
+        return self._available_slots_by_student_group
+
 
 def main():
     data_helper = DataHelper(**get_data())
-    ic(data_helper.events_by_student_group)
+    ic(data_helper.available_slots_by_student_group)
 
 
 if __name__ == "__main__":

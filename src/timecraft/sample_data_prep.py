@@ -46,7 +46,7 @@ def main():
 #     return Box(data)
 
 
-def get_data():
+def get_data(verbose=True):
     data_path = r"C:\Users\sajit\OneDrive\Documents\Desktop\Pythonn\Git\timecraft-backend\src\timecraft\sample_data.json"
     with open(data_path, "r") as f:
         data = json.load(f)
@@ -55,7 +55,7 @@ def get_data():
         for joint_courses in data["joint_courses_list"]
     ]
     events = EventCreation(joint_courses_list=joint_courses_list).get_events(
-        verbose=True
+        verbose=verbose
     )
     event_data = {
         "no_hours": data["no_hours"],
@@ -68,4 +68,4 @@ def get_data():
 
 
 if __name__ == "__main__":
-    ic(type(get_data()["faculties"][0]))
+    get_data()
