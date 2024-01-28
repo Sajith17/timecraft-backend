@@ -100,11 +100,12 @@ def main():
         FacultyOverlapConstraint(data_helper=data_helper),
         FacultyWorkloadConstraint(data_helper=data_helper),
         HourConstraint(data_helper=data_helper),
+        CourseFrequencyConstraint1(data_helper=data_helper),
         CourseFrequencyConstraint(data_helper=data_helper),
     ]
     ga = GeneticAlgorithm(data_helper=data_helper, constraints=constraints)
     winner = ga.run_evolution(
-        population_size=600, generation_limit=1000, fitness_limit=2.0
+        population_size=1000, generation_limit=100, fitness_limit=2.0
     )
     ic(np.array(winner.timetable))
     ic(winner.fitness_score)

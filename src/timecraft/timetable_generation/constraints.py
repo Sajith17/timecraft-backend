@@ -78,6 +78,29 @@ class FacultyWorkloadConstraint(Constraint):
         return fitness_score
 
 
+class CourseFrequencyConstraint1(Constraint):
+    def __init__(self, data_helper: DataHelper):
+        super().__init__(type=super().Type("hard"))
+        self.data_helper = data_helper
+
+    def calculate_fitness_score(self, timetable):
+        fitness_score = 0
+        no_hours = self.data_helper.no_hours
+        for day in range(self.data_helper.no_days):
+            for group_index in range(len(self.data_helper.student_groups)):
+                course_code_list = []
+                for slot in range(day * no_hours, (day + 1) * no_hours):
+                    course_code_list.append(
+                        self.data_helper.events[
+                            timetable[group_index][slot]
+                        ].course_codes[0]
+                    )
+                fitness_score += sum(
+                    max(freq - 2, 0) for freq in Counter(course_code_list).values()
+                )
+        return fitness_score
+
+
 class CourseFrequencyConstraint(Constraint):
     def __init__(self, data_helper: DataHelper):
         super().__init__(type=super().Type("soft"))

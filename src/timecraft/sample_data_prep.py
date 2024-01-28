@@ -68,4 +68,5 @@ def get_data(verbose=True):
 
 
 if __name__ == "__main__":
-    get_data()
+    for i, j in enumerate(get_data()["events"]):
+        ic(i, j)
