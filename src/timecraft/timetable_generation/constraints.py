@@ -78,7 +78,7 @@ class FacultyWorkloadConstraint(Constraint):
         return fitness_score
 
 
-class CourseFrequencyConstraint1(Constraint):
+class CourseFrequencyConstraint(Constraint):
     def __init__(self, data_helper: DataHelper):
         super().__init__(type=super().Type("hard"))
         self.data_helper = data_helper
@@ -101,7 +101,7 @@ class CourseFrequencyConstraint1(Constraint):
         return fitness_score
 
 
-class CourseFrequencyConstraint(Constraint):
+class CourseDistributionConstraint(Constraint):
     def __init__(self, data_helper: DataHelper):
         super().__init__(type=super().Type("soft"))
         self.data_helper = data_helper

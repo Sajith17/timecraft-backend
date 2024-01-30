@@ -161,3 +161,4 @@ cython_debug/
 
 sample_data.json
 sample_events.json
+.vscode/
