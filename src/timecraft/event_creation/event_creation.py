@@ -28,6 +28,8 @@ class EventCreation:
             genome = genetic_algorithm.run_evolution(
                 generation_limit=10, verbose=verbose
             )
+            if genome.fitness_score < 1:
+                raise ValueError("Cant find a feasible solution (event creation)")
             events.extend(
                 self._create_events_from_assignment(
                     assigment=genome.assignment, data_helper=data_helper

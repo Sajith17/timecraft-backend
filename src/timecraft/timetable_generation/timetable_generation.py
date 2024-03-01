@@ -1,10 +1,10 @@
-from genetic_algorithm import GeneticAlgorithm
-from data_helper import DataHelper
-from typing import List, Dict
+from timecraft.timetable_generation.genetic_algorithm import GeneticAlgorithm
+from timecraft.timetable_generation.data_helper import DataHelper
 from timecraft.event_creation.event import Event
-from constraints import *
+from timecraft.timetable_generation.constraints import *
 from timecraft.models import Faculty
 
+from typing import List, Dict
 from icecream import ic
 
 
@@ -23,7 +23,7 @@ class TimetableGeneration:
         self.events = events
         self.faculties = faculties
 
-    def generate(self):
+    def generate(self, verbose=True):
         data_helper = DataHelper(
             no_hours=self.no_hours,
             no_days=self.no_days,
@@ -42,8 +42,13 @@ class TimetableGeneration:
             data_helper=data_helper, constraints=constraints
         )
         timetable = genetic_algorithm.run_evolution(
-            population_size=150, generation_limit=1000, fitness_limit=2.0, verbose=True
+            population_size=150,
+            generation_limit=1000,
+            fitness_limit=2.0,
+            verbose=verbose,
         )
+        if timetable.fitness_score < 1:
+            raise ValueError("Can't find a feasible solution (timetable generation")
         return timetable
 
 
