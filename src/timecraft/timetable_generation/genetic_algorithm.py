@@ -31,7 +31,7 @@ class GeneticAlgorithm:
         offspring_b = Genome(data_helper=self.data_helper, constraints=self.constraints)
         no_slots = self.data_helper.no_slots
         for i in range(len(self.data_helper.student_groups)):
-            if rand() < 0.75:
+            if rand() < 0.85:
                 p = randint(low=1, high=self.data_helper.no_slots - 1)
                 offspring_a.timetable.append(
                     parent_a.timetable[i][:p] + parent_b.timetable[i][p:no_slots]
@@ -54,7 +54,7 @@ class GeneticAlgorithm:
             events_by_student_group.values(),
             available_slots_by_student_group.values(),
         ):
-            if rand() < 0.35:
+            if rand() < 0.45:
                 pickable_events, _ = events
                 index = choice(available_slots)
                 genome.timetable[i][index] = choice(pickable_events)
@@ -105,10 +105,12 @@ def main():
     ]
     ga = GeneticAlgorithm(data_helper=data_helper, constraints=constraints)
     winner = ga.run_evolution(
-        population_size=100, generation_limit=1000, fitness_limit=2.0
+        population_size=150, generation_limit=1000, fitness_limit=2.0
     )
     ic(np.array(winner.timetable))
     ic(winner.fitness_score)
+    for i, j in enumerate(data_helper.events):
+        print(i, j.course_codes, j.faculty_codes)
 
 
 if __name__ == "__main__":
