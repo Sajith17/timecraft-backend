@@ -3,7 +3,7 @@ from flask_cors import CORS
 from src.timecraft.generate import generate_timetable
 
 app = Flask(__name__)
-# CORS(app)
+CORS(app)
 
 
 @app.route("/create_timetable", methods=["POST"])
