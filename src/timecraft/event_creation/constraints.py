@@ -62,7 +62,7 @@ class FacultyOverlapConstraint(Constraint):
 
 
 class ColumnRedundancyConstraint(Constraint):
-    """This constraint is used to minimize the number of unique columns which then results in minimized number of event creation."""
+    """This constraint minimizes the number of unique columns which then results in minimized number of event creation."""
 
     def __init__(self, data_helper: DataHelper):
         super().__init__(type=super().Type("soft"))
