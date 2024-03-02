@@ -3,7 +3,6 @@ from timecraft.models import JointCourses
 from timecraft.event_creation.event_creation import EventCreation
 from timecraft.event_creation.event import Event, Class, Faculty
 from dataclasses import asdict
-from box import Box
 
 
 from icecream import ic
