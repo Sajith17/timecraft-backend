@@ -12,6 +12,7 @@ def create_timetable():
     try:
         return jsonify(generate_timetable(data, verbose=True)), 200
     except Exception as e:
+        raise (e)
         return ({"message": str(e)}, 400)
 
 

@@ -43,12 +43,12 @@ class TimetableGeneration:
         )
         timetable = genetic_algorithm.run_evolution(
             population_size=150,
-            generation_limit=50,
+            generation_limit=1000,
             fitness_limit=2.0,
             verbose=verbose,
         )
-        # if timetable.fitness_score < 1:
-        #     raise ValueError("Can't find a feasible solution (timetable generation")
+        if timetable.fitness_score < 1:
+            raise ValueError("Can not find a feasible solution (timetable generation)")
         return timetable
 
 

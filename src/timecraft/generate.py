@@ -9,9 +9,10 @@ from icecream import ic
 
 
 def generate_timetable(data, verbose=False):
+    data = convert_keys(data, "snakecase")
     data = {
-        "no_hours": data["no_hours"],
-        "no_days": data["no_days"],
+        "no_hours": int(data["no_hours"]),
+        "no_days": int(data["no_days"]),
         "student_groups": data["student_groups"],
         "faculties": [Faculty(**f) for f in data["faculties"]],
         "joint_courses_list": [
@@ -44,4 +45,6 @@ if __name__ == "__main__":
     data_path = r"C:\Users\sajit\OneDrive\Documents\Desktop\Pythonn\Git\timecraft-backend\src\timecraft\sample_data.json"
     with open(data_path, "r") as f:
         data = json.load(f)
-    ic(generate_timetable(data, verbose=True))
+    with open("sampleDataCamelCase.json", "w") as json_file:
+        json.dump(convert_keys(data, "camelcase"), json_file)
+    # ic(generate_timetable(data, verbose=True))

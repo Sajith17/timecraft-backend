@@ -48,7 +48,7 @@ def main():
             faculties=[Faculty(code="MATH3"), Faculty(code="MATH4")],
             no_hours=5,
             student_group="A",
-            faculty_hour_split=[2, 3],
+            hours_distribution=[2, 3],
         ),
     ]
     joint_courses = JointCourses(courses=courses, fixed_slots=None)

@@ -25,7 +25,8 @@ class Course:
     no_hours: int
     student_group: str
     name: Optional[str] = None
-    faculty_hour_split: Optional[List[int]] = None
+    hours_distribution: Optional[List[int]] = None
+    is_shared: Optional[bool] = None
 
     @classmethod
     def from_json_dict(cls, json_dict):

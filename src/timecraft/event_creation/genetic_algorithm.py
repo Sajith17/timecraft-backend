@@ -102,7 +102,7 @@ def main():
             ],
             no_hours=6,
             student_group="A",
-            faculty_hour_split=[3, 3],
+            hours_distribution=[3, 3],
         ),
         Course(
             code="CS102",
@@ -112,7 +112,7 @@ def main():
             ],
             no_hours=6,
             student_group="A",
-            faculty_hour_split=[3, 3],
+            hours_distribution=[3, 3],
         ),
     ]
     fixed_slots = [1, 2, 3]

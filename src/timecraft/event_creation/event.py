@@ -20,7 +20,7 @@ class Class:
     def create_classes_from_courses(cls, courses: List[Course]) -> List[Class]:
         classes = []
         for course in courses:
-            if not course.faculty_hour_split:
+            if not course.hours_distribution:
                 classes.append(
                     Class(
                         course_code=course.code,
@@ -34,7 +34,7 @@ class Class:
                         Class(
                             course_code=course.code,
                             faculties=[faculty],
-                            no_hours=course.faculty_hour_split[i],
+                            no_hours=course.hours_distribution[i],
                         )
                     )
         return classes
@@ -120,14 +120,14 @@ def main():
             faculties=[Faculty(code="MATH1"), Faculty(code="MATH2")],
             no_hours=5,
             student_group="A",
-            faculty_hour_split=[1, 4],
+            hours_distribution=[1, 4],
         ),
         Course(
             code="CS102",
             faculties=[Faculty(code="MATH3"), Faculty(code="MATH4")],
             no_hours=5,
             student_group="A",
-            faculty_hour_split=[2, 3],
+            hours_distribution=[2, 3],
         ),
     ]
     classes = Class.create_classes_from_courses(courses=courses)
