@@ -35,7 +35,11 @@ def generate_timetable(data, verbose=False):
         .timetable
     )
     d = {
-        "events": list(map(asdict, events)),
+        "student_groups": data["student_groups"],
+        "events": list(
+            {"classes": event["classes"], "faculties": event["student_group"]}
+            for event in map(asdict, events)
+        ),
         "timetable": [list(map(int, l)) for l in timetable],
     }
     return convert_keys(d, "camelcase")

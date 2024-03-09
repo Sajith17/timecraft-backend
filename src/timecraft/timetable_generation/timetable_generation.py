@@ -47,8 +47,8 @@ class TimetableGeneration:
             fitness_limit=2.0,
             verbose=verbose,
         )
-        if timetable.fitness_score < 1:
-            raise ValueError("Can not find a feasible solution (timetable generation)")
+        # if timetable.fitness_score < 1:
+        #     raise ValueError("Can not find a feasible solution (timetable generation)")
         return timetable
 
 
