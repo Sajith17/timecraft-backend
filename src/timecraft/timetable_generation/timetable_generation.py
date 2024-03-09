@@ -43,7 +43,7 @@ class TimetableGeneration:
         )
         timetable = genetic_algorithm.run_evolution(
             population_size=150,
-            generation_limit=1000,
+            generation_limit=100,
             fitness_limit=2.0,
             verbose=verbose,
         )
