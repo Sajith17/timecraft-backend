@@ -46,9 +46,13 @@ def generate_timetable(data, verbose=False):
 
 
 if __name__ == "__main__":
-    data_path = r"C:\Users\sajit\OneDrive\Documents\Desktop\Pythonn\Git\timecraft-backend\src\timecraft\sample_data.json"
+    # data_path = r"C:\Users\sajit\OneDrive\Documents\Desktop\Pythonn\Git\timecraft-backend\src\timecraft\sample_data.json"
+    # with open(data_path, "r") as f:
+    #     data = json.load(f)
+    # with open("sampleDataCamelCase.json", "w") as json_file:
+    #     json.dump(convert_keys(data, "camelcase"), json_file)
+    # ic(generate_timetable(data, verbose=True))
+    data_path = r"C:\Users\sajit\OneDrive\Documents\Desktop\Pythonn\Git\timecraft-backend\sampleDataCamelCase.json"
     with open(data_path, "r") as f:
         data = json.load(f)
-    with open("sampleDataCamelCase.json", "w") as json_file:
-        json.dump(convert_keys(data, "camelcase"), json_file)
-    # ic(generate_timetable(data, verbose=True))
+    ic(generate_timetable(data, verbose=True))
