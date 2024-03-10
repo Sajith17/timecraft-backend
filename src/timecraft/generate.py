@@ -37,7 +37,7 @@ def generate_timetable(data, verbose=False):
     d = {
         "student_groups": data["student_groups"],
         "events": list(
-            {"classes": event["classes"], "faculties": event["student_group"]}
+            {"classes": event["classes"], "student_group": event["student_group"]}
             for event in map(asdict, events)
         ),
         "timetable": [list(map(int, l)) for l in timetable],
