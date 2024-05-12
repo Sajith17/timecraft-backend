@@ -1,6 +1,7 @@
 numpy
 Flask
 flask_cors
+gunicorn
 stringcase
 icecream
 
